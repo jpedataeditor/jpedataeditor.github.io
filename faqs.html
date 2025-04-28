@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Frequently Asked Questions – JPE Data Editor</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./img/favicon.png" rel="icon" type="image/png">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-search-results"></div>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Frequently Asked Questions</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The following lines provide answers to some frequently asked questions about different aspects of the reproducibility checks and our data and code availability policy. Click on each question to display the answer.</p>
+<section id="scope-of-reproducibility-checks-at-ej" class="level2">
+<h2 class="anchored" data-anchor-id="scope-of-reproducibility-checks-at-ej">Scope of Reproducibility Checks at EJ</h2>
+<ul>
+<li>What is the exact nature of the reproducibility checks carried out at the Economic Journal?
+<details>
+<summary>
+Answer
+</summary>
+The purpose of the reproducibility checks carried out at the Economic Journal is to verify three aspects of the replication package: (i) it is complete, in the sense of producing each table, figure, and in-text number in the paper and its appendices, including those online; (ii) it is self-contained, in the sense of not requiring a subprogram or module not included in the package; and (iii) the data and code are adequately documented for other researchers to be able to use them to replicate the results in the paper. When the data are accessible (included in the package or, in case of exemptions, via temporary access by the reproducibility team), the checks ensure that the code exactly reproduces the results in the paper and its appendices. In the case of a data exemption, authors may provide simulated or synthetic data to check that the code runs and produces all output, but the exact results cannot be checked. <br>Reproducibility checks (not replication checks) are conducted. This means that our checks <b><i>do not</i></b> screen for coding errors, discrepancies between what the paper claims the code does and what it actually does, econometric errors, or whether the empirical approach followed in the paper can be reproduced in other environments or other datasets.
+</details></li>
+<li>Are the reproducibility checks implemented on online appendices?
+<details>
+<summary>
+Answer
+</summary>
+Yes, the replication package should produce each table, figure, and in-text number in the paper and its appendices, including those online. All these codes are checked for their ability to produce the results in the paper and appendices.
+</details></li>
+<li>Why is the Economic Journal running reproducibility checks? Why not replication checks?
+<details>
+<summary>
+Answer
+</summary>
+We firmly believe that reproducibility and replicability are the main pillars of science. The nature of replication checks requires time, effort, and resources that journals typically do not have: the publication process should be speedy for science to advance at the right pace. Our reproducibility checks provide a necessary first step: to ensure that authors publish all available data and the codes that generate the results they present in the papers we publish, and, importantly, to check that these codes and data run and produce the published results. The certification that we provide enhances transparency, since it assures that other researchers can reproduce the published research and test it against other datasets, assumptions, methods, etc. It also provides an additional service to the authors, as we often detect small errors that are better amended before publication than in an erratum afterwards.</details></li>
+</ul>
+</section>
+<section id="data-and-code-availability-policy-and-exemptions" class="level2">
+<h2 class="anchored" data-anchor-id="data-and-code-availability-policy-and-exemptions">Data and Code Availability Policy and Exemptions</h2>
+<ul>
+<li>My paper uses publicly available data. Is it enough to indicate how to get them or should I provide my datasets as part of the replication package?
+<details>
+<summary>
+Answer
+</summary>
+Even publicly available data should be included in the replication package to ensure they remain available in the future for anyone who wants to replicate your results. The only exception is when your exact extract is published in a "trusted" repository (see the following <a href="https://social-science-data-editors.github.io/guidance/Requested_information_hosting.html#trusted-repositories">list</a> for guidance) with a permanent DOI. This is important, because datasets are often updated (or removed) by the provider, and your version of the data may no longer be available to researchers in the future.
+</details></li>
+<li>My paper uses publicly available data. Does it imply that I certainly have the right to re-publish my dataset along with the replication package? If not, how can I obtain permission to publish the data?
+<details>
+<summary>
+Answer
+</summary>
+Each provider offers a different policy regarding re-distribution of original and transformed datasets. Some providers, for example, allow re-distribution as long as your extract is deposited in a specific repository. You should make sure about the restrictions to publish your data before the first submission. You should also make sure to seek permission from the original owner of the data to publish them, and make sure to cite the original source accordingly.
+</details></li>
+<li>Can I request an exemption to publish my data?
+<details>
+<summary>
+Answer
+</summary>
+Yes, you can request an exemption on the grounds that the data are restricted-access. The request should be made <b><i>at the time of initial submission</i></b>, in a cover letter addressed to the Editor. The Editor in charge of your submission will determine whether your request is justified before submitting the paper to referees. If the Editor decides against the exemption, the manuscript will not be sent to referees, and you will be requested to either accept the data and code availability policy or otherwise the paper will be rejected. Submission fees will not be returned in that case. When an exemption is needed for a dataset that is incorporated to the analysis during the editorial process, the exemption should be requested at the first iteration in which the new data are incorporated.
+</details></li>
+<li>Can I request an exemption that affects only a part of my data?
+<details>
+<summary>
+Answer
+</summary>
+Yes, provided that the request is made at the time of initial submission.
+</details></li>
+<li>If my main dataset is available to publish, but there is a small portion of my data that I am not allowed to share, should I request a data exemption?
+<details>
+<summary>
+Answer
+</summary>
+Yes. If you do not require a data exemption at the time of your first submission, you will be required to publish all the data used in your paper.
+</details></li>
+<li>If the only data I am not allowed to share is only used in the online appendix, should I request a data exemption?
+<details>
+<summary>
+Answer
+</summary>
+Yes. The data to produce all results in the paper and appendices, including those online, should be shared unless an exemption is requested and granted at the time of first submission.
+</details></li>
+<li>If the data I use are publicly available to everyone, but I do not have permission to re-publish it, should I request a data exemption?
+<details>
+<summary>
+Answer
+</summary>
+Yes. Unless you are granted an exemption at the time of first submission, you will be required to publish in the replication package all data to produce all results in the paper and appendices, including those online.
+</details></li>
+<li>Can I request an exemption later than the first initial submission?
+<details>
+<summary>
+Answer
+</summary>
+In general, no. Later exemptions can only be requested for new data that is incorporated into the analysis during the editorial process. If your data cannot be published and you did not request the exemption at the time of initial submission, your paper may be rejected for publication at Economic Journal.
+</details></li>
+<li>If my data are free of charge and available to any researcher who requests it from the data provider, but I don’t have the right to publish it with the replication package, should I request an exemption?
+<details>
+<summary>
+Answer
+</summary>
+Yes. Whenever the data used for the analysis in the paper cannot be published with the replication package (or in an open-access "trusted" repository, see the following <a href="https://social-science-data-editors.github.io/guidance/Requested_information_hosting.html#trusted-repositories">list</a> for guidance on what constitutes a "trusted" repository) an exemption needs to be requested at the time of first submission. Only if the exact extract that was used in the study is published in the repository and it is readily available in the exact format that is called by the code, an exemption will not be requested.
+</details></li>
+<li>Some data providers only allow authors to distribute the data in specific open repositories (for example, the Panel Study of Income Dynamics only allows to distribute the data using the OpenICPSR Repository). Do I need to request an exemption in such cases?
+<details>
+<summary>
+Answer
+</summary>
+No.&nbsp;Data archived in "trusted" open repositories (see the following <a href="https://social-science-data-editors.github.io/guidance/Requested_information_hosting.html#trusted-repositories">list</a> for guidance) is acceptable in the replication package provided what is published is the extract that was used in the study and it is readily available in the exact format that is called by your code. The Data Editor will evaluate the suitability of the repository.
+</details></li>
+<li>If I published my data in an open repository, do I need to include it in the replication package?
+<details>
+<summary>
+Answer
+</summary>
+Data archived in "trusted" open repositories (see the following <a href="https://social-science-data-editors.github.io/guidance/Requested_information_hosting.html#trusted-repositories">list</a> for guidance) is acceptable in the replication package provided what is published is the extract that was used in the study and it is readily available in the exact format that is called by the code. The Data Editor will evaluate the suitability of the repository and whether or not there is the need of publishing a copy with the package on the journal’s repository.
+</details></li>
+<li>If I publish my replication package on my website (or similar), do I need to submit a replication package?
+<details>
+<summary>
+Answer
+</summary>
+Yes. Personal websites are not considered "trusted" open repositories, because there is no guarantee that the package will be systematically archived. See the following <a href="https://social-science-data-editors.github.io/guidance/Requested_information_hosting.html#trusted-repositories">list</a> for guidance on what constitutes a "trusted" repository.
+</details></li>
+<li>Can I request an exemption to publish my data because I collected these data and I want to keep exclusivity rights for future research?
+<details>
+<summary>
+Answer
+</summary>
+No.&nbsp;The goal of our data and code availability policy is to ensure transparency and reproducibility of research, and this requires publishing the data you collected. If others can use your data, your research will gain visibility.
+</details></li>
+<li>Can I apply for data exemption if my data come from a commercial data provider (Datastream, Orbis, …)?
+<details>
+<summary>
+Answer
+</summary>
+Yes. Restricted access data is generally discouraged, but when the nature of your research largely relies on a specific dataset and cannot be conducted on an open alternative, those data are eligible for an exemption. However, you may be requested to provide a certification from the provider indicating that the data will be archived and made available to other users following the same procedure to request access to it.
+</details></li>
+<li>Can I request an exemption for the experimental data I collected?
+<details>
+<summary>
+Answer
+</summary>
+In general, no. Data should be anonymized to ensure that subjects cannot be identified. Only when the nature of the study impedes such anonymization, the authors can request a data exemption, which will cover only the required minimum to ensure the anonymity of the experimental subjects.
+</details></li>
+<li>Can I request an exemption to publish my code?
+<details>
+<summary>
+Answer
+</summary>
+No.
+</details></li>
+<li>Can I use any software, proprietary and open source?
+<details>
+<summary>
+Answer
+</summary>
+Yes. Open source software is encouraged, but licensed software is allowed. If the authors use software which is rather uncommon and requires special licenses, we ask for their cooperation to find a solution (which might entail providing remote access to the authors’ machine to our replicators in extreme cases.).
+</details></li>
+<li>Do I need to publish packages and libraries that are used by my code but not part of the standard distribution of the software used?
+<details>
+<summary>
+Answer
+</summary>
+Whenever possible, yes. If these packages or libraries are available in open repositories (e.g.&nbsp;most Stata packages), a clear indication on how to download and use them is sufficient. If the libraries cannot be included in the packages and are not publicly available, the Data Editor will be in contact with the authors to coordinate on a feasible way to implement the checks.
+</details></li>
+</ul>
+</section>
+<section id="procedures-when-exemptions-are-granted" class="level2">
+<h2 class="anchored" data-anchor-id="procedures-when-exemptions-are-granted">Procedures when Exemptions Are Granted</h2>
+<ul>
+<li>If I was granted a data exemption, how should I proceed with the replication package?
+<details>
+<summary>
+Answer
+</summary>
+If you were granted a data exemption, your paper would still need to go through reproducibility checks before final acceptance. In order to do so, you can either (i) grant temporary (distance or physical) access to the data to the reproducibility team for the sole purpose of the checks (the data will be destroyed or access terminated after the checks), or (ii) supply simulated or synthetic dataset(s) instead of the one(s) used in the analysis.
+</details></li>
+<li>What is the difference between simulated data and synthetic data?
+<details>
+<summary>
+Answer
+</summary>
+A simulated dataset is generated by a model (ideally, your model). A synthetic dataset is a scrambling or perturbation of the actual dataset to ensure anonymity.
+</details></li>
+<li>Is it better to provide temporary access to the restricted data or to provide a simulated/synthetic dataset?
+<details>
+<summary>
+Answer
+</summary>
+Whenever feasible, we strongly recommend providing temporary access to restricted data. There are numerous advantages of this approach: (i) it saves the effort of producing synthetic or simulated datasets; (ii) the certification provided by the journal is stronger in the sense that we certify that we have been able to reproduce the results published in the paper as opposed to only checking that the code is complete, runs, and produces output for all tables, figures, and in-text numbers published in the article and its printed and online appendices; (iii) we can detect if the results cannot be reproduced, which gives the authors a chance to fix any errors before publication.
+</details></li>
+<li>What is the procedure followed by the Economic Journal when I supply restricted datasets for the sole purpose of the reproducibility checks?
+<details>
+<summary>
+Answer
+</summary>
+The reproducibility team will treat the data with the highest ethical standards, preventing any violations of confidentiality, and using them exclusively to run the reproducibility checks. The restricted datasets will be destroyed as soon as the checks are performed and, therefore, they will not be published.
+</details></li>
+<li>What shall I do if I am not allowed to provide temporary access to the confidential data, but the data provider can run the code to implement the reproducibility checks?
+<details>
+<summary>
+Answer
+</summary>
+Even if you cannot provide direct access to the reproducibility team, this option is preferred to the simulated/synthetic dataset alternative as long as the checks can be executed in a reasonable amount of time. In this case, you need to supply the replication package to the journal and the contact of the data provider. The reproducibility team will send the code to the provider and the provider will send the output back to the team, who will check the results.
+</details></li>
+<li>What can I do if I am not allowed to provide temporary access to the confidential data, but a certification agency (e.g.&nbsp;<a href="https://www.casd.eu/en/le-centre-dacces-securise-aux-donnees-casd/certification-de-resultats-cascad-casd/">cascad</a>) can run the code in the original data source?
+<details>
+<summary>
+Answer
+</summary>
+This option is still generally preferred to the simulated/synthetic dataset alternative. However, you should seek approval by the Data Editor before making any commitments with the certification agency. The Economic Journal, however, will <b><i>NOT</i></b> be able to cover the cost of certification.
+</details></li>
+<li>If my restricted-access data provider has a public use testing sample (smaller sample, or perturbed dataset), can I provide this sample instead of a simulated/ synthetic dataset?
+<details>
+<summary>
+Answer
+</summary>
+If this option is available, it is generally preferred to the simulated/synthetic dataset (but less preferred to providing temporary access to the original data) as long as the testing sample can be published with your package. Otherwise, a simulated/synthetic dataset that can be published with the package is preferred.
+</details></li>
+<li>What is the procedure followed by the Economic Journal if I supply simulated/synthetic datasets?
+<details>
+<summary>
+Answer
+</summary>
+The simulated/synthetic dataset will be published with the replication package. Even if these are not the real data, their structure, which by design will largely mimic the actual dataset, will give readers a better sense of your data. Please make sure the manipulations used to produce the synthetic/simulated datasets are described in the ReadMe file.
+</details></li>
+<li>Why am I requested to supply a simulated/synthetic data?
+<details>
+<summary>
+Answer
+</summary>
+Our view is that, when reproducibility checks cannot be performed on real data, there is still an advantage of running them on such simulated/synthetic datasets: they are still useful to make sure the code is complete and self-contained, and that it runs without errors.
+</details></li>
+<li>My article estimates a non-linear model. The algorithm does not converge with randomly generated data. What shall I do?
+<details>
+<summary>
+Answer
+</summary>
+In this case, we strongly recommend simulating data using your model as data generating process. If that is not feasible, please contact the Data Editor explaining in detail why this is the case. The Data Editor will either assist you in the process, and, eventually, s/he will make a proposal to your original Editor about how to handle the situation.
+</details></li>
+<li>How do I decide whether to produce a simulated or a synthetic dataset?
+<details>
+<summary>
+Answer
+</summary>
+In order to generate a dataset that mimics the same characteristics as the original one, the synthetic option may be easier. There are many open source routines that do it for you. However, there are also two main disadvantages: (i) you need to make sure that your scrambling/perturbation algorithm ensures correct anonymization of the data; and (ii) non-linear estimation routines may not converge on synthetic data, whereas they are more likely to converge in an artificial dataset generated by the model that you are estimating.
+</details></li>
+<li>How should I produce a synthetic dataset?
+<details>
+<summary>
+Answer
+</summary>
+There are multiple ways to generate it. You can find some useful links with helpful resources, mostly in R, <a href="https://journalprivacyconfidentiality.org/index.php/jpc/article/view/407">here</a>, <a href="https://www.jstatsoft.org/article/view/v074i11">here</a>, <a href="https://github.com/virgesmith/demographyMicrosim">here</a>, and <a href="https://www.jstatsoft.org/article/view/v079i10">here</a>
+</details></li>
+</ul>
+</section>
+<section id="implementation-of-the-reproducibility-checks" class="level2">
+<h2 class="anchored" data-anchor-id="implementation-of-the-reproducibility-checks">Implementation of the Reproducibility Checks</h2>
+<ul>
+<li>How long do the reproducibility checks take?
+<details>
+<summary>
+Answer
+</summary>
+We usually provide the outcome of our reproducibility checks in less than two weeks. If the package is not complete or the code does not run, more than one iteration may be required, in which case the processing time might be increased. Articles that require a relatively long running time may take longer. The processing time also depends on how responsive the authors are to our requests.
+</details></li>
+<li>How do the reproducibility checks work?
+<details>
+<summary>
+Answer
+</summary>
+The reproducibility checks are handled by our Data Editor and our reproducibility team: a team of advanced Ph.D.&nbsp;students that have been hired to carry out the checks under the supervision of the Data Editor. Once an article is conditionally accepted for publication at the Economic Journal, the authors are requested to submit the replication package along with other production files. Upon submission, the Data Editor assigns the package to one or several members of the reproducibility team. The reproducibility team provides the Data Editor with a report summarizing the outcome of the checks. After reviewing it, the Data Editor contacts the authors informing them about the outcome of the replication checks, and eventually requests them to amend the package if needed. Once the replication checks are completed, the article is transferred back to the original Editor, who is in charge of final acceptance. If results in the paper need to be modified as a result of the checks, the original Editor in charge will be responsible for approving these changes before acceptance. If these changes imply a modification of the message of the paper, the original Editor can decide to reject the paper. Final acceptance is conditional on full reproducibility.
+</details></li>
+<li>Will the Economic Journal run my code?
+<details>
+<summary>
+Answer
+</summary>
+Yes. Upon submission, the Data Editor assigns the package to one or several members of the reproducibility team, who will run your code and check the output generated. The reproducibility team provides the Data Editor with a report summarizing the outcome of the checks. In some instances, the code is too demanding to be run in a reasonable amount of time. In such cases, the Data Editor will be in contact with you with a recommendation for supplying a simplified version of the code that allows testing the essential parts of the code.
+</details></li>
+<li>What happens if my code is highly demanding computationally?
+<details>
+<summary>
+Answer
+</summary>
+If the code is too demanding to be run in a reasonable amount of time, the Data Editor will be in contact with you with a recommendation for supplying a simplified version of the code that allows testing the essential parts of the code. For example, this can entail a reduced number of replications of a simulation exercise, the code that solves a structural model for a given set of parameters, a simplified function to test an optimization routine, etc. Such a simplified "testing" version will be published along with the original code in your replication package. This is so because we believe that these testing versions are extremely useful for other researchers that want to understand and use your code for replication or their related research, enhancing transparency and increasing the visibility of your research.
+</details></li>
+<li>What happens if the results fail to reproduce?
+<details>
+<summary>
+Answer
+</summary>
+If the data and code that you provided fail to replicate the results in the paper, the Data Editor will be in contact with you to identify the source of the discrepancy. Once the reproducibility checks are completed, if the discrepancy implies a change in the results presented in the paper or online appendices, even if minor, the Data Editor will notify it to the original Editor in charge. The Editor in charge will be responsible for approving these changes before acceptance. If these changes imply a modification of the message of the paper, the original Editor can decide to reject the paper. Final acceptance is conditional on full reproducibility.
+</details></li>
+<li>What happens if the replication package I provided is not complete?
+<details>
+<summary>
+Answer
+</summary>
+The Data Editor will be in contact with you indicating the amendments and additions that need to be done to the replication package to pass the reproducibility checks. Once amended, the revised package will go through the checks again.
+</details></li>
+<li>What happens if the file I provided is not complete?
+<details>
+<summary>
+Answer
+</summary>
+The Data Editor will be in contact with you indicating the amendments and additions that need to be done to the replication package to pass the reproducibility checks. Once amended, the revised package will go through the checks again.
+</details></li>
+<li>Why do I need to resubmit the entire package (instead of only the revised part of it) when I incorporate the feedback received from the Data Editor and the reproducibility team?
+<details>
+<summary>
+Answer
+</summary>
+We need you to submit the entire package again because updating the replication package ourselves increases the potential risk that the files you intend to submit for possible publication may be mishandled.
+</details></li>
+</ul>
+</section>
+<section id="content-of-the-replication-package" class="level2">
+<h2 class="anchored" data-anchor-id="content-of-the-replication-package">Content of the Replication Package</h2>
+<ul>
+<li>What should be included in the replication package? Please see <a href="./package.html#contents-of-replication-package">here</a>.</li>
+<li>How do I provide physical access to the replication team to my restricted-access data when I have been granted a data exemption?
+<details>
+<summary>
+Answer
+</summary>
+Whenever possible, the easiest way is to provide a physical copy of your data by including it in a separate folder labeled "4 Confidential data not for publication" outside of the replication package. All replicators and the Data Editor have signed confidentiality agreements that prevent them to use the data for any other purpose than the reproducibility checks. When that option is not feasible, we recommend you to contact our Data Editor to arrange the best way to provide access to the reproducibility team.
+</details></li>
+<li>Why do I need to submit a signed checklist?
+<details>
+<summary>
+Answer
+</summary>
+To ensure that you do not forget all elements of the replication package. This avoids repeated iterations and speeds up the process.
+</details></li>
+<li>Should I respect the folder structure dictated by the checklist, or is it only for orientation?
+<details>
+<summary>
+Answer
+</summary>
+Yes, you should and it is very important to do so. When submitted to production, your package is handled by different people at the Economic Journal and at the publisher, not all of them familiarized with data and code. Respecting the folder structure ensures that your package is published correctly.
+</details></li>
+<li>What information should be included in the <code>ReadMe</code> file? Please see <a href="./package.html#the-readme-file">here</a>.</li>
+<li>Should I submit the raw data files and the code that generates my final dataset from them?
+<details>
+<summary>
+Answer
+</summary>
+Yes, this is requested by our Data and Code Availability Policy.
+</details></li>
+<li>Why do I need to supply all text documents (ReadMe, IRB, etc.) in PDF format?
+<details>
+<summary>
+Answer
+</summary>
+The PDF format is portable, which means that it can be transferred without having to worry about dependencies, fonts, etc. This ensures readability across platforms and users.
+</details></li>
+<li>Why do I need to include a copy of all datasets in non-proprietary format (ASCII, csv, etc.)?
+<details>
+<summary>
+Answer
+</summary>
+Some users of your replication package may be not have access to the specific proprietary software that you used for your study. This ensures that they can have access to your data without problems. It also minimizes compatibility issues (e.g., old versions of Stata cannot open files saved by newer versions).
+</details></li>
+</ul>
+</section>
+<section id="data-citations" class="level2">
+<h2 class="anchored" data-anchor-id="data-citations">Data Citations</h2>
+<ul>
+<li>What data should I cite?
+<details>
+<summary>
+Answer
+</summary>
+All datasets used in the paper (with no exceptions) should be cited both in the paper and in a dedicated section of the ReadMe file.
+</details></li>
+<li>If I mention my datasets in the Online Appendix or in the ReadMe file, should I cite them?
+<details>
+<summary>
+Answer
+</summary>
+Yes, all datasets used in the paper (with no exceptions) should be listed in the references section of the <b>paper</b> in the same way that we cite other papers, and a copy of these citations should appear in a dedicated section of the <b>ReadMe</b> file.
+</details></li>
+<li>How should I cite my data?
+<details>
+<summary>
+Answer
+</summary>
+You should cite all datasets used in the paper (with no exceptions) in the references section of the <b>paper</b> in the same way that we cite other papers, and a copy of these citations should appear in a dedicated section of the <b>ReadMe</b> file. You can find some examples in page 7 of <a href="https://bit.ly/3ivH38d">this document</a>. More specific guidance on data citations is available <a href="https://social-science-data-editors.github.io/guidance/addtl-data-citation-guidance.html">here</a>.
+</details></li>
+<li>Why should I cite my data?
+<details>
+<summary>
+Answer
+</summary>
+Data citations are as fundamental as citations to other papers, if not more. Giving proper credit to data providers is in line with all scientific ethical standards. Moreover, giving proper credit to data providers ensures that they can keep receiving external funding to make their datasets publicly available for research.
+</details></li>
+</ul>
+</section>
+<section id="reproducibility-certification-publication-of-the-replication-package-and-copyright-issues" class="level2">
+<h2 class="anchored" data-anchor-id="reproducibility-certification-publication-of-the-replication-package-and-copyright-issues">Reproducibility Certification, Publication of the Replication Package and Copyright Issues</h2>
+<ul>
+<li>What kind of certification do we provide for papers that were checked for reproducibility?
+<details>
+<summary>
+Answer
+</summary>
+The empirical/simulation/experimental papers that we checked include the following statement: <i>"The data and codes for this paper are available at […]. They were checked for their ability to reproduce the results presented in the paper."</i> This statement is adjusted accordingly when data exemptions are granted (acknowledging either that the authors provided temporary access to the confidential data or that the checks were implemented on simulated/synthetic data provided by the authors). In particular, we either certify <i>"The authors were granted an exemption to publish their data because access to the data is restricted. However, the authors provided a simulated or synthetic dataset that allowed the Journal to run their codes. The synthetic/simulated data and codes are available at […]. They were checked for their ability to generate all tables and figures in the paper, however, the synthetic/simulated data are not designed to reproduce the same results."</i> or <i>"The authors were granted an exemption to publish their data because access to the data is restricted. However, the authors provided the Journal with temporary access to the data, which allowed the Journal to run their codes. The codes are available at […]. The data and codes were checked for their ability to reproduce the results presented in the paper."</i>, depending on the case that is applicable. These statements are combined accordingly when more than one situation applies. The statements are also also adjusted when the nature of the algorithms is highly demanding, and a partial/simplified version of the code has been used for the reproducibility checks: we add the sentence "Given the highly demanding nature of the algorithms, the replication checks were run on a simplified version of the code, which is also available at […]" to the applicable statement.
+</details></li>
+<li>Where will the replication package be published?
+<details>
+<summary>
+Answer
+</summary>
+After all reproducibility checks are completed, you will be requested by the Editorial Office to publish your checked package at the <a href="https://zenodo.org/communities/ej-replication-repository">Economic Journal’s community of Zenodo</a>. Zenodo will assing your package a Digital Object Identifier (DOI), which then will be linked with your publication.
+</details></li>
+<li>Do I keep the copyright of my package?
+<details>
+<summary>
+Answer
+</summary>
+Yes, one of the main advantages of you publishing the package at the <a href="https://zenodo.org/communities/ej-replication-repository">Economic Journal’s community at Zenodo</a> is that you are the sole responsible and copyright owner of the specific publication. Therefore, it is important that you ensure that you have permission to publish your data before the time of first submission and request an exemption then if you don’t.
+</details></li>
+<li>Why are packages published at the Economic Journal’s community at Zenodo instead of with the article on the Journal’s website?
+<details>
+<summary>
+Answer
+</summary>
+There are many advantages from publishing the package at the <a href="https://zenodo.org/communities/ej-replication-repository">Economic Journal’s community at Zenodo</a>. Some of them are: (i) the author retains the copyright on the replication package, (ii) by having a specific DOI, it increases the visibility of all packages and, in turn, it increases the visibility of your article, and (iii) it makes it easier to cite.
+</details></li>
+<li>Can I post my replication material on other sites?
+<details>
+<summary>
+Answer
+</summary>
+Yes, as long as one copy is published at the <a href="https://zenodo.org/communities/ej-replication-repository">Economic Journal’s community at Zenodo</a>. The only exception is when your replication package is published in a "trusted" repository (see the following <a href="https://social-science-data-editors.github.io/guidance/Requested_information_hosting.html#trusted-repositories">list</a> for guidance) with a permanent DOI. In that case, your DOI can be used to link your article with your package, and the Data Editor can wave the requirement to publish the package at the Economic Journal’s community at Zenodo. However, publishing your package at the Economic Journal’s community at Zenodo is recommended, because it increases the visibility of your package.
+</details></li>
+<li>All data is publicly available. Do I still need to get permission from the website owner to post data on Economic Journal’s publisher website?
+<details>
+<summary>
+Answer
+</summary>
+Each provider offers a different policy regarding re-distribution of original and transformed datasets. Some providers, for example, allow re-distribution as long as your extract is deposited in a specific repository. You should make sure about the restrictions to publish your data before the first submission. You should also make sure to seek permission from the original owner of the data to publish them, and make sure to cite the original source accordingly. You will be the responsible of copyright infringements for what you publish with the replication package at the <a href="https://zenodo.org/communities/ej-replication-repository">Economic Journal’s community at Zenodo</a>.
+</details></li>
+<li>Can I retrospectively include a replication package as supplementary online material to my Economic Journal article?
+<details>
+<summary>
+Answer
+</summary>
+Yes. Please address your request to the Editorial Office at <a href="mailto:ej@res.org.uk">ej@res.org.uk
+</a></details></li><a href="mailto:ej@res.org.uk">
+</a></ul><a href="mailto:ej@res.org.uk">
+</a>
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("git@github-jpe:jpedataeditor\/jpedataeditor\.github\.io\.git");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left"><a href="mailto:ej@res.org.uk">
+</a><p><a href="mailto:ej@res.org.uk">JPE Data Editor: </a><a href="jpe.dataeditor@gmail.com">jpe.dataeditor@gmail.com</a> <br> JPE Journal Office: <a href="jpe@press.uchicago.edu">jpe@press.uchicago.edu</a></p>
+</div>   
+    <div class="nav-footer-center">
+<p>© <a href="https://floswald.github.io">Florian Oswald</a> 2025</p>
+</div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jpedataeditor">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
