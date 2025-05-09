@@ -1,43 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/replicate.html</loc>
-    <lastmod>2025-04-28T20:34:24.462Z</lastmod>
+    <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/de.html</loc>
+    <lastmod>2025-05-09T07:35:08.045Z</lastmod>
   </url>
   <url>
-    <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/best.html</loc>
-    <lastmod>2025-04-28T20:34:24.419Z</lastmod>
-  </url>
-  <url>
-    <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/package.html</loc>
-    <lastmod>2025-04-28T20:34:24.460Z</lastmod>
-  </url>
-  <url>
-    <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/before.html</loc>
-    <lastmod>2025-04-28T20:34:24.419Z</lastmod>
+    <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/policy.html</loc>
+    <lastmod>2025-05-09T07:36:16.521Z</lastmod>
   </url>
   <url>
     <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/posts/20240505-stataversions/index.html</loc>
     <lastmod>2025-04-28T20:34:24.461Z</lastmod>
   </url>
   <url>
-    <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/replicator-resources.html</loc>
-    <lastmod>2025-04-28T20:34:24.462Z</lastmod>
-  </url>
-  <url>
-    <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/faqs.html</loc>
-    <lastmod>2025-04-28T20:34:24.420Z</lastmod>
-  </url>
-  <url>
     <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/index.html</loc>
-    <lastmod>2025-04-28T20:45:41.683Z</lastmod>
+    <lastmod>2025-05-09T08:05:33.421Z</lastmod>
   </url>
   <url>
     <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/posts.html</loc>
     <lastmod>2025-04-28T20:34:24.460Z</lastmod>
-  </url>
-  <url>
-    <loc>git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/de.html</loc>
-    <lastmod>2025-04-28T20:34:24.420Z</lastmod>
   </url>
 </urlset>

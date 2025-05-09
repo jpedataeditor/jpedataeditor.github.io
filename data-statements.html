@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>The JPE Data Editor – JPE Data Editor</title>
+<title>data-statements – {{&lt; var jpe.short &gt;}} Data Editor</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -24,15 +24,12 @@ ul.task-list li input[type="checkbox"] {
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./img/jpeicon.png" rel="icon" type="image/png">
-<script src="site_libs/cookie-consent/cookie-consent.js"></script>
-<link href="site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -41,7 +38,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-eed81839940661de66980311c7016588.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -69,115 +66,83 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-48S9X9V28L"></script>
-
-<script type="text/plain" cookie-consent="tracking">
-
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-48S9X9V28L', { 'anonymize_ip': true});
-</script>
-
-<script type="text/javascript" charset="UTF-8">
-document.addEventListener('DOMContentLoaded', function () {
-cookieconsent.run({
-  "notice_banner_type":"simple",
-  "consent_type":"implied",
-  "palette":"light",
-  "language":"en",
-  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
-  "notice_banner_reject_button_hide":false,
-  "preferences_center_close_button_hide":false,
-  "website_name":""
-  ,
-"language":"en"
-  });
-});
-</script> 
-  
 
 
 </head>
 
-<body class="nav-sidebar docked fullcontent">
+<body>
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <div id="quarto-announcement" data-announcement-id="661abbd4cddc2c100943dc6157eb023e" class="alert alert-warning hidden"><i class="bi bi-cone-striped quarto-announcement-icon"></i><div class="quarto-announcement-content">
-<p>This website is being built at the moment. Official Launch July 1st 2025.</p>
-</div></div>
-  <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./de.html">Data Editor</a></li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-        </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
-    </div>
-  </nav>
-</header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header">
-      <a href="./index.html" class="sidebar-logo-link">
-      <img src="./img/jpe.jpg" alt="" class="sidebar-logo py-0 d-lg-inline d-none">
-      </a>
-      </div>
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
-    <div class="sidebar-menu-container"> 
-    <ul class="list-unstyled mt-1">
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./policy.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Code and Data Policy</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./de.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Data Editor</span></a>
-  </div>
-</li>
-    </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="data-statements.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">The JPE Data Editor</h1>
-</div>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
-<div class="quarto-title-meta">
 
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<p>Starting with July 1st 2025, the Data Editor of the JPE is <a href="https://floswald.github.io">Florian Oswald</a>.</p>
+<p>The replication package is deposited under DOI <code>xyz</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 15%">
+<col style="width: 80%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Code</th>
+<th style="text-align: center;">Meaning</th>
+<th style="text-align: left;">Data Statement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">Available</td>
+<td style="text-align: left;">Data and code for this paper are available in the above deposit. They were checked by the Journal for their ability to reproduce the results presented in the paper.</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">Simulation</td>
+<td style="text-align: left;">The authors were granted an exemption to publish their data because access is restricted. However, the authors provided a simulated or synthetic dataset that allowed the Journal to run their code. The synthetic/simulated data and code are available in the above deposit. They were checked for their ability to generate all tables and figures in the paper. However, the synthetic/simulated data are not designed to reproduce the same results.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">T</td>
+<td style="text-align: center;">Temporary</td>
+<td style="text-align: left;">The authors were granted an exemption to publish their data because access is restricted. However, the authors provided the Journal with temporary access to the data, which allowed the Journal to run their code. Code and unrestricted data are available in the above deposit. Data and code were checked by the Journal for their ability to reproduce the results presented in the paper.</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">P1</td>
+<td style="text-align: center;">Partial 1</td>
+<td style="text-align: left;">Given the highly demanding nature of the algorithms, the reproducibility checks were run on a simplified version of the code, which is also available in the deposit. [which is to be added right after the end of any of the previous three statements].</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">P2</td>
+<td style="text-align: center;">Partial 2</td>
+<td style="text-align: left;">Given the highly demanding nature of the algorithms, the reproducibility checks were performed on a subset or results only. Those are clearly indicated in the accompanying README file of the replication package. [which is to be added right after the end of any of the previous three statements].</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">A;T</td>
+<td style="text-align: center;">Available, Temporary</td>
+<td style="text-align: left;">Data and code for this paper are available in the above deposit. They were checked by the Journal for their ability to reproduce the results presented in the paper. The authors were granted an exemption to publish parts of their data because access to these data is restricted. However, the authors provided the Journal with temporary access to the data, which enabled the Journal to check reproducibility of results. Code for all parts of the paper and unrestricted data are available in the above deposit.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">A;S</td>
+<td style="text-align: center;">Available, Simulation</td>
+<td style="text-align: left;">Data and code for this paper are available in the above deposit. They were checked by the Journal for their ability to reproduce the results presented in the paper. The authors were granted an exemption to publish parts of their data because access to these data is restricted. However, the authors provided the Journal provided a simulated or synthetic dataset, which enabled the Journal to run the code. Code for all parts of the paper and unrestricted data are available in the above deposit. They were checked for their ability to generate all tables and figures in the paper, however the synthetic/simulated data are not designed to reproduce the same results.</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">A;T;S</td>
+<td style="text-align: center;">Available, Temporary, Simulation</td>
+<td style="text-align: left;">Data and code for this paper are available in the above deposit. They were checked by the Journal for their ability to reproduce the results presented in the paper. The authors were granted an exemption to publish parts of their data because access to these data is restricted. However, the authors provided the Journal with temporary access to the parts of the restricted data, which enabled the Journal to check reproducibility of results. Other parts of the data remained inaccessibel to the Journal, and the authors provided a simulated or synthetic dataset, which enabled the Journal to run the code. Code for all parts of the paper and unrestricted data are available in the above deposit. They were checked for their ability to generate all tables and figures in the paper, however the synthetic/simulated data are not designed to reproduce the same results.</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -272,7 +237,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("git@github-jpe:jpedataeditor\/jpedataeditor\.github\.io\.git");
+      var filterRegex = new RegExp('/' + window.location.host + '/');
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -607,7 +572,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
 <p>© <a href="https://floswald.github.io">Florian Oswald</a> 2025</p>
-<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+</div>
     <div class="nav-footer-right">
       <ul class="footer-items list-unstyled">
     <li class="nav-item compact">
