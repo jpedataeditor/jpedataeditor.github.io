@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2025-05-15">
 
 <title>JPE Data and Code Policy – JPE Data Editor</title>
 <style>
@@ -188,7 +189,7 @@ cookieconsent.run({
   <li><a href="#omissions" id="toc-omissions" class="nav-link" data-scroll-target="#omissions"><span class="header-section-number">4.3</span> Omissions</a></li>
   </ul></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="policy.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="policy.docx"><i class="bi bi-file-word"></i>MS Word</a></li><li><a href="policy.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -203,6 +204,12 @@ cookieconsent.run({
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 15, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -212,7 +219,7 @@ cookieconsent.run({
 </header>
 
 
-<p>It is the policy of the Journal of Political Economy (JPE) to publish papers only if the data and computer code used in the analysis are clearly and precisely documented and are readily available to any researcher for purposes of replication. Authors of conditionally accepted papers, in particular those that contain empirical work, simulations, experimental work, or numerical computations, must provide, prior to publication, the data, programs, and other details of the computations sufficient to permit replication. They must also provide sufficient information to replicate the process of obtaining the raw data from the original sources and cite all the sources of data appropriately.</p>
+<p>It is the policy of the Journal of Political Economy (JPE) to publish papers only if the data and computer code used in the analysis are clearly and precisely documented and are readily available to any researcher for purposes of replication (unless the exemptions discussed below apply). Authors of conditionally accepted papers, in particular those that contain empirical work, simulations, experimental work, or numerical computations, must provide, prior to publication, the data, programs, and other details of the computations sufficient to permit replication. They must also provide sufficient information to replicate the process of obtaining the raw data from the original sources and cite all the sources of data appropriately.</p>
 <p>The JPE will perform reproducibility checks of empirical, experimental and simulation results of all conditionally accepted papers and their approved online appendices. Eventual publication of the paper is conditional on a positive outcome of those checks. Requests for an exemption from providing the materials described in this policy, or for restricting their usage, should be stated clearly when the paper is first submitted for review. The handling editor will decide whether the paper should be reviewed in this case. Exceptions will not be considered later in the review and publication process.</p>
 <p>By submitting to the JPE, authors indicate their acceptance of this Data and Code Policy.</p>
 <p><img src="https://datacodestandard.org/assets/img/DCAS-1.0.png" class="img-fluid" alt="Link to DCAS Icon"> The JPE endorses DCAS, the <a href="https://datacodestandard.org/">Data and Code Availability Standard</a> [v1.0], and its data and code availability policy is compatible with DCAS.</p>
@@ -225,7 +232,7 @@ cookieconsent.run({
 </section>
 <section id="sec-rawdata" class="level3" data-number="1.2">
 <h3 data-number="1.2" class="anchored" data-anchor-id="sec-rawdata"><span class="header-section-number">1.2</span> Raw Data</h3>
-<p>The raw data utilized in the research, including primary data collected by the author and secondary data, must be included in the replication package. If the exact extract of the raw data used in the analysis is published in a trusted repository that satisfies the FAIR data principles (guidance <a href="https://social-science-data-editors.github.io/guidance/Requested_information_hosting.html">here</a>), including a permanent identifier (e.g.&nbsp;its DOI) linking to these raw data is considered sufficient to fulfill the obligation of including the raw data in the replication package. In cases where the terms of use of the secondary data or the ethics requirements of the primary data used in the analysis prohibit the authors from publishing them, the authors must request an exemption and provide a justification for not complying with the policy. When exemptions are granted, authors are required to comply with at least one of the following two procedures:</p>
+<p>The raw data utilized in the research, including primary data collected by the author and secondary data, must be included in the replication package. If the exact extract of the raw data used in the analysis is published in a trusted repository that satisfies the FAIR data principles (guidance <a href="https://social-science-data-editors.github.io/guidance/Requested_information_hosting.html">here</a>), including a permanent identifier (e.g.&nbsp;its DOI) linking to these raw data is considered sufficient to fulfill the obligation of including the raw data in the replication package. In cases where legal barriers for sharing the data prohibit the authors from publishing them, the authors must request an exemption and provide a justification for not complying with the policy. When exemptions are granted, authors are required to comply with at least one of the following two procedures:</p>
 <ol type="1">
 <li>Whenever possible, provide the JPE with temporary access to the data affected by the exemption for the purpose of implementing reproducibility checks. It is the authors’ responsibility to obtain permission from the data provider to confidentially share the data with the JPE.</li>
 <li>Include in the replication package a synthetic or simulated dataset that enables users to execute the code and verify that it generates all outputs presented in the paper and appendices, even if the results differ from those in the paper. While including synthetic/simulated data is not required when temporary access for JPE is provided, it is still recommended, as it allows future users of the package to run the codes, increasing the publication’s impact.</li>
@@ -331,6 +338,9 @@ cookieconsent.run({
 <section id="omissions" class="level3" data-number="4.3">
 <h3 data-number="4.3" class="anchored" data-anchor-id="omissions"><span class="header-section-number">4.3</span> Omissions</h3>
 <p>The <code>README</code> must clearly indicate any omission of the required parts of the package as a result of a granted exemption. The <code>README</code> must also indicate the reasons for such omission, such as legal requirements, limitations, or other approved agreements. In cases where the extent or complexity of the reproducibility checks impedes the exact reproduction of all the results in the paper and approved appendices, such as when synthetic datasets are provided (see <a href="#sec-rawdata" class="quarto-xref">Section&nbsp;1.2</a>) or partial checks have been implemented (see <a href="#sec-analysis-code" class="quarto-xref">Section&nbsp;2.2</a>), the <code>README</code> must clarify which results have not been checked for reproducibility and why.</p>
+<div class="small">
+<p>Version v1, May 15, 2025</p>
+</div>
 
 
 </section>
