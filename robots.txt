@@ -1,1 +1,1 @@
-Sitemap: git@github-jpe:jpedataeditor/jpedataeditor.github.io.git/sitemap.xml
+Sitemap: https://jpedataeditor.github.io/sitemap.xml
