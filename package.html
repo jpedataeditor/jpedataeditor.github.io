@@ -41,7 +41,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-d4a3873d6f9c217b34de990d74047f12.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-040a5c49459a92f4c7b9a593c22bcc40.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -312,7 +312,7 @@ cookieconsent.run({
 <ul>
 <li>A <code>README</code> file in PDF format (<code>README.pdf</code>). We strongly recommend using <a href="https://social-science-data-editors.github.io/template_README/">this template</a>. You may find in <a href="https://www.templatereadme.org/">this web app</a> a convenient tool to create your <code>README</code> file. The minimally required content of the readme is specified <a href="./policy.html#sec-readme">here</a>. A comprehensive list is given below in <a href="#sec-package-readme" class="quarto-xref">Section&nbsp;3</a>.</li>
 <li>The <strong>raw datasets</strong> used in the paper and online appendices, including a complete, transparent and precise documentation describing all variables. You can additionally provide the analysis data if this is helpful, but they are not required if the raw data are provided.</li>
-<li>If you were granted a data exemption at the time of first submission (see <a href="./before.html#apply-to-exemptions-to-the-data-and-code-availability-policy">here</a>, <a href="./faqs.html#data-and-code-availability-policy-and-exemptions">here</a>, and <a href="./faqs.html#procedures-when-exemptions-are-granted">here</a> for details), you should either provide the replication team with <strong>temporary access</strong> to the data for the sole purpose of performing the reproducibility checks, or you should submit a <strong>synthetic/simulated</strong> dataset that allows running the code and produce all outputs in the paper and appendices, even if the results do not match those in the paper. If you can provide temporary access but you cannot share the data in the <code>4-confidential-data-not-for-publication</code> folder, please contact the Data Editor at jpe.dataeditor@gmail.com to arrange an alternative access method. The content of this folder will be destroyed after the reproducibility checks are completed. All replicators and the Data Editor have signed confidentiality agreements that protect your submission.</li>
+<li>If you were granted a data exemption at the time of first submission (see <a href="./before.html#apply-to-exemptions-to-the-data-and-code-availability-policy">here</a>, <a href="./faqs.html#data-and-code-availability-policy-and-exemptions">here</a>, and <a href="./faqs.html#procedures-when-exemptions-are-granted">here</a> for details), you should either provide the replication team with <strong>temporary access</strong> to the data for the sole purpose of performing the reproducibility checks, or you should submit a <strong>synthetic/simulated</strong> dataset that allows running the code and produce all outputs in the paper and appendices, even if the results do not match those in the paper. If you can provide temporary access but you cannot share the data in the <code>confidential-data-not-for-publication</code> folder, please contact the Data Editor at jpe.dataeditor@gmail.com to arrange an alternative access method. The content of this folder will be destroyed after the reproducibility checks are completed. All replicators and the Data Editor have signed confidentiality agreements that protect your submission.</li>
 <li>Both the data cleaning codes and the analysis codes that produce all reproducible outputs reported in the article, appendix, and online appendices (including figures, tables, and numbers reported in the text). If some results are produced without scripts (e.g.&nbsp;ArcGIS maps), the <code>README</code> file should include step-by-step <em>very detailed instructions</em> on how to produce that output. In case of simulation/Monte Carlo studies, the authors are requested to set a seed so that the exact numbers that are reported can be obtained.</li>
 <li>If data are provided in proprietary format (e.g.&nbsp;Stata’s <code>.dta</code>), a copy of the data in non-proprietary format (e.g.&nbsp;<code>ASCII</code>, <code>.csv</code>).</li>
 </ul>
@@ -326,7 +326,7 @@ cookieconsent.run({
 </section>
 <section id="sec-package-readme" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="sec-package-readme"><span class="header-section-number">3</span> The <code>README</code> File</h2>
-<p>The <code>README</code> file should provide enough instructions so that all users (level of an advanced PhD student and above) can reproduce all the results in the paper in a reasonable amount of time and without problems. We strongly recommend using <a href="https://social-science-data-editors.github.io/template_README/">this template</a>.You may find in <a href="https://www.templatereadme.org/">this web app</a> a convenient tool to create your <code>README</code> file. The <strong>minimum required information includes</strong>:</p>
+<p>The <code>README</code> file should provide enough instructions so that all users (level of an advanced PhD student and above) can reproduce all the results in the paper in a reasonable amount of time and without problems. We strongly recommend using <a href="https://social-science-data-editors.github.io/template_README/">this template</a>. You may find in <a href="https://www.templatereadme.org/">this web app</a> a convenient tool to create your <code>README</code> file. The <strong>minimum required information includes</strong>:</p>
 <ol type="1">
 <li>A <strong>verbal description</strong> of the content of the package (datasets, programs, folders, etc.)</li>
 <li><strong>Data Availability Statement</strong>: precise indications on how the data were obtained, including required registrations, memberships, application procedures, monetary cost, or other qualifications, and, if applicable, URL to download them (which is typically part of the data citation).</li>
@@ -340,7 +340,7 @@ cookieconsent.run({
 <li><strong>Software requirements</strong>, including the software version and operating system used by the authors.</li>
 <li>All <strong>packages and libraries</strong> that need to be installed to run the code and a clear indication on how to obtain them.</li>
 <li><strong>Expected running time</strong> (even if it is a few seconds). When relevant, include the hardware that the estimated time refers to.</li>
-<li><strong>Data citations</strong>: all datasets used in the paper (with no exceptions) should be listed in the references section of the paper in the same way that we cite other papers, and a copy of these citations should appear in a dedicated section of the ReadMe file. You can find some examples <a href="https://social-science-data-editors.github.io/guidance/addtl-data-citation-guidance.html">here</a></li>
+<li><strong>Data citations</strong>: all datasets used in the paper (with no exceptions) should be listed in the references section of the paper in the same way that we cite other papers, and a copy of these citations should appear in a dedicated section of the ReadMe file. You can find some examples <a href="https://social-science-data-editors.github.io/guidance/addtl-data-citation-guidance.html">here</a>.</li>
 </ol>
 </section>
 <section id="data-citations" class="level2" data-number="4">
@@ -370,14 +370,19 @@ Data Citations Are Important!
 </section>
 <section id="after-the-reproducibility-checks-are-completed-publish-your-package" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="after-the-reproducibility-checks-are-completed-publish-your-package"><span class="header-section-number">6</span> After the reproducibility checks are completed: publish your package!</h2>
-<p>Once the reproducibility checks are concluded, and upon invitation of the Data Editor, you will be requested to perform a final step: publish your replication package at the <a href="https://dataverse.harvard.edu/dataverse/JPE">JPE Dataverse</a>. To do so, you need to do the following:</p>
+<p>Once the reproducibility checks are concluded, and upon invitation of the Data Editor, you will be requested to perform a final step: publish your replication package at the <a href="https://dataverse.harvard.edu/dataverse/JPE">JPE Dataverse</a>. To do so, you need to perform the following steps:</p>
+<div class="extrapad">
 <ol type="1">
 <li>Sign up <a href="https://dataverse.harvard.edu/dataverse/JPE">here</a> for a free account, if you don’t have one already.</li>
-<li>Log in and click on <em>Add Data</em>.</li>
-<li>You must upload the <em>exact same package</em> which the Data Editor sign off on. This will be checked automatically</li>
-<li>However, <strong>do not include the content of the <code>4-confidential-data-not-for-publication</code> folder</strong>!</li>
+<li>Log in and click on <em>Add Data &gt; New Dataset</em>. <img src="img/dv1.png" class="img-fluid"></li>
+<li>Fill in all required but <strong>do not add any data</strong> at this step. Instead, click on <em>Save Dataset</em>. <img src="img/dv2.png" class="img-fluid"></li>
+<li>Your deposit will be created. Now you can select <em>Upload Files</em>. <img src="img/dv3.png" class="img-fluid"></li>
+<li>On the resulting screen, it is <strong>compulsory</strong> to select the <em>Upload a Folder</em> button and to upload <strong>in uncompressed format</strong> the <em>exact same package</em> which the Data Editor sign off on (again, only difference is that your package is not compressed here). The correspondence between uploaded and accepted package will be checked automatically. <img src="img/dv4.png" class="img-fluid"></li>
+<li>⚠️ <strong>Do not include the content of the <code>confidential-data-not-for-publication</code> folder</strong>!</li>
+<li>After the folder upload has finished, reload the dataverse page of your deposit. Check your files are visible at the bottom. Click on <em>Submit for Review</em>. <img src="img/dv5.png" class="img-fluid"></li>
 <li>After verification of your deposit by the Data Editor, your package will be published on the JPE dataverse, and the process of reproducibility checks comes to an end.</li>
 </ol>
+</div>
 
 
 </section>
