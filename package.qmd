@@ -118,7 +118,7 @@ As indicated in the journal's [Data and Code Availability Policy](https://www.jo
 
 * A `README` file in PDF format (`README.pdf`). We strongly recommend using [this template](https://social-science-data-editors.github.io/template_README/).  You may find in [this web app](https://www.templatereadme.org/) a convenient tool to create your `README` file. The minimally required content of the readme is specified [here](policy.qmd#sec-readme). A comprehensive list is given below in @sec-package-readme.
 * The **raw datasets** used in the paper and online appendices, including a complete, transparent and precise documentation describing all variables. You can additionally provide the analysis data if this is helpful, but they are not required if the raw data are provided. 
-* If you were granted a data exemption at the time of first submission (see [here](before.qmd#apply-to-exemptions-to-the-data-and-code-availability-policy), [here](faqs.qmd#data-and-code-availability-policy-and-exemptions), and [here](faqs.qmd#procedures-when-exemptions-are-granted) for details), you should either provide the replication team with **temporary access** to the data for the sole purpose of performing the reproducibility checks, or you should submit a **synthetic/simulated** dataset that allows running the code and produce all outputs in the paper and appendices, even if the results do not match those in the paper. If you can provide temporary access but you cannot share the data in the `4-confidential-data-not-for-publication` folder, please contact the Data Editor at {{< var de.mail >}} to arrange an alternative access method. The content of this folder will be destroyed after the reproducibility checks are completed. All replicators and the Data Editor have signed confidentiality agreements that protect your submission.
+* If you were granted a data exemption at the time of first submission (see [here](before.qmd#apply-to-exemptions-to-the-data-and-code-availability-policy), [here](faqs.qmd#data-and-code-availability-policy-and-exemptions), and [here](faqs.qmd#procedures-when-exemptions-are-granted) for details), you should either provide the replication team with **temporary access** to the data for the sole purpose of performing the reproducibility checks, or you should submit a **synthetic/simulated** dataset that allows running the code and produce all outputs in the paper and appendices, even if the results do not match those in the paper. If you can provide temporary access but you cannot share the data in the `confidential-data-not-for-publication` folder, please contact the Data Editor at {{< var de.mail >}} to arrange an alternative access method. The content of this folder will be destroyed after the reproducibility checks are completed. All replicators and the Data Editor have signed confidentiality agreements that protect your submission.
 * Both the data cleaning codes and the analysis codes that produce all reproducible outputs reported in the article, appendix, and online appendices (including figures, tables, and numbers reported in the text). If some results are produced without scripts (e.g. ArcGIS maps), the `README` file should include step-by-step _very detailed instructions_ on how to produce that output. In case of simulation/Monte Carlo studies, the authors are requested to set a seed so that the exact numbers that are reported can be obtained.
 * If data are provided in proprietary format (e.g. Stata's `.dta`), a copy of the data in non-proprietary format (e.g. `ASCII`, `.csv`).
 
@@ -132,7 +132,7 @@ As indicated in the journal's [Data and Code Availability Policy](https://www.jo
 
 ## The `README` File {#sec-package-readme}
 
-The `README` file should provide enough instructions so that all users (level of an advanced PhD student and above) can reproduce all the results in the paper in a reasonable amount of time and without problems. We strongly recommend using [this template](https://social-science-data-editors.github.io/template_README/).You may find in [this web app](https://www.templatereadme.org/) a convenient tool to create your `README` file. The **minimum required information includes**: 
+The `README` file should provide enough instructions so that all users (level of an advanced PhD student and above) can reproduce all the results in the paper in a reasonable amount of time and without problems. We strongly recommend using [this template](https://social-science-data-editors.github.io/template_README/). You may find in [this web app](https://www.templatereadme.org/) a convenient tool to create your `README` file. The **minimum required information includes**: 
 
 
 1. A **verbal description** of the content of the package (datasets, programs, folders, etc.)
@@ -145,7 +145,7 @@ The `README` file should provide enough instructions so that all users (level of
 6. **Software requirements**, including the software version and operating system used by the authors.
 7. All **packages and libraries** that need to be installed to run the code and a clear indication on how to obtain them.
 8. **Expected running time** (even if it is a few seconds). When relevant, include the hardware that the estimated time refers to.
-9.  **Data citations**: all datasets used in the paper (with no exceptions) should be listed in the references section of the paper in the same way that we cite other papers, and a copy of these citations should appear in a dedicated section of the ReadMe file. You can find some examples [here](https://social-science-data-editors.github.io/guidance/addtl-data-citation-guidance.html)
+9.  **Data citations**: all datasets used in the paper (with no exceptions) should be listed in the references section of the paper in the same way that we cite other papers, and a copy of these citations should appear in a dedicated section of the ReadMe file. You can find some examples [here](https://social-science-data-editors.github.io/guidance/addtl-data-citation-guidance.html).
 
 ## Data Citations
 
@@ -173,11 +173,17 @@ If you need to implement modifications of your package, you will be instructed t
 
 ## After the reproducibility checks are completed: publish your package!
 
-Once the reproducibility checks are concluded, and upon invitation of the Data Editor, you will be requested to perform a final step:  publish your replication package at the [JPE Dataverse](https://dataverse.harvard.edu/dataverse/JPE). To do so, you need to do the following: 
+Once the reproducibility checks are concluded, and upon invitation of the Data Editor, you will be requested to perform a final step:  publish your replication package at the [JPE Dataverse](https://dataverse.harvard.edu/dataverse/JPE). To do so, you need to perform the following steps: 
+
+::: {.extrapad}
 
 1. Sign up [here](https://dataverse.harvard.edu/dataverse/JPE) for a free account, if you don't have one already.
-2. Log in and click on *Add Data*.
-3. You must upload the *exact same package* which the Data Editor sign off on. This will be checked automatically
-4. However, **do not include the content of the `4-confidential-data-not-for-publication` folder**! 
-5. After verification of your deposit by the Data Editor, your package will be published on the JPE dataverse, and the process of reproducibility checks comes to an end.
+2. Log in and click on *Add Data > New Dataset*. ![](img/dv1.png)
+3. Fill in all required but **do not add any data** at this step. Instead, click on *Save Dataset*. ![](img/dv2.png)
+4. Your deposit will be created. Now you can select *Upload Files*. ![](img/dv3.png)
+5. On the resulting screen, it is **compulsory** to select the *Upload a Folder* button and to upload **in uncompressed format** the *exact same package* which the Data Editor sign off on (again, only difference is that your package is not compressed here). The correspondence between uploaded and accepted package will be checked automatically. ![](img/dv4.png)
+6. ⚠️ **Do not include the content of the `confidential-data-not-for-publication` folder**!
+7. After the folder upload has finished, reload the dataverse page of your deposit. Check your files are visible at the bottom. Click on *Submit for Review*. ![](img/dv5.png)
+8. After verification of your deposit by the Data Editor, your package will be published on the JPE dataverse, and the process of reproducibility checks comes to an end.
 
+:::
