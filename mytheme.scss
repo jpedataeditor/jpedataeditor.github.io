@@ -19,3 +19,7 @@ $primary: #94d0b9;
 .column.right-col {
   padding-left: 1rem;
 }
+
+.extrapad li:not(:last-child) {
+  margin-bottom: 20px  !important;
+}
