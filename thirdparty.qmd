@@ -16,14 +16,14 @@ Employed at: __________________________
 
 Position: __________________________
 
-is acting as a third party replicator for Journal of Political Economy to verify the results of the paper __________________
+is acting as a third party replicator for Journal of Political Economy to verify the results of the paper __________________ [TITLE] by _________________ [AUTHOR(S)]
 
-The third party replicator hereby certifies:
+The third party replicator hereby certifies the following to the Journal of Political Economy:
 
-- [ ] I am not a coauthor of the concerned paper.
-- [ ] I am not subject to other conflicts of interest regarding the integrity of the concerned paper.
-- [ ] I have executed the instructions included in the supplied replication package to the best of my knowledge, without changing any parts of the source code - except where explicitly instructed, for instance, to change file path.
-- [ ] I will treat all material and the results of the replication checks as strictly confidential and discard any copy of the material from my computer or any storage devices upon completion.
+- [ ] I am not a coauthor of the above-named paper.
+- [ ] I am not subject to other conflicts of interest regarding the integrity of the above-named paper.
+- [ ] I will execute the data replication check strictly in accordance with the instructions included in the replication package supplied by JPE, without changing any parts of the source code, except where explicitly instructed otherwise by JPE.
+- [ ] I will treat all materials (including the JPE replication package) provided to me for the replication checks and the results of the replication checks as strictly confidential, and I will discard any copy of such materials from my computer and any storage devices upon completion.
 
 
 Date:
