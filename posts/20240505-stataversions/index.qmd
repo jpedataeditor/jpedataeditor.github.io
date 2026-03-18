@@ -7,7 +7,7 @@ author:
     orcid: 0000-0001-7737-2038
     affiliation: SciencesPo Paris, EJ Data Editor
     affiliation-url: https://ejdataeditor.github.io/ 
-date: today
+date: 2025-12-23
 date-format: long
 categories: [STATA, versions, packages] # self-defined categories
 image: burchardi-dummy.png

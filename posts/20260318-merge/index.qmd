@@ -1,6 +1,6 @@
 ---
 title: "Merges and Joins: From SQL to Stata"
-subtitle: "A visual guide to inner joins, outer joins, and why `merge m:m` is almost never what you want"
+description: "A visual guide to inner joins, outer joins, and why `merge m:m` is almost never what you want"
 author:
   - name: Florian Oswald
     url: https://floswald.github.io/
@@ -8,18 +8,11 @@ author:
     affiliation: Collegio Carlo Alberto, UniTo, JPE Data Editor
     affiliation-url: https://jpedataeditor.github.io/ 
 date: today
-format:
-  html:
-    toc: true
-    toc-depth: 3
-    toc-title: "Contents"
-    number-sections: true
-    code-fold: false
-    theme: cosmo
-    highlight-style: github
-    fig-align: center
-    callout-appearance: simple
-    self-contained: true
+date-format: long
+categories: [STATA, R] # self-defined categories
+image: right.png
+draft: false # setting this to `true` will prevent your post from appearing
+number-sections: true
 execute:
   echo: true
   warning: false
@@ -141,7 +134,7 @@ y   # print y — 3 rows, keys 1/2/4
 ```
 
 ::: {.callout-note collapse="true"}
-## Julia equivalent
+## Julia
 
 ```julia
 using DataFrames
@@ -172,14 +165,14 @@ x |> inner_join(y, join_by(key))
 ```
 
 ::: {.callout-note collapse="true"}
-## Julia equivalent
+## Julia
 
 ```julia
 innerjoin(x, y, on = :key)
 ```
 :::
 
-| SQL | Stata | R | Julia (DataFrames.jl) |
+| SQL | Stata | R (dplyr) | Julia (DataFrames.jl) |
 |---|---|---|---|
 | `INNER JOIN` | `merge …; keep if _merge == 3` | `inner_join()` | `innerjoin()` |
 
@@ -194,14 +187,14 @@ x |> left_join(y, join_by(key))
 ```
 
 ::: {.callout-note collapse="true"}
-## Julia equivalent
+## Julia
 
 ```julia
 leftjoin(x, y, on = :key)
 ```
 :::
 
-| SQL | Stata | R | Julia (DataFrames.jl) |
+| SQL | Stata | R (dplyr) | Julia (DataFrames.jl) |
 |---|---|---|---|
 | `LEFT OUTER JOIN` | `merge …; keep if _merge != 2` | `left_join()` | `leftjoin()` |
 
@@ -216,14 +209,14 @@ x |> right_join(y, join_by(key))
 ```
 
 ::: {.callout-note collapse="true"}
-## Julia equivalent
+## Julia
 
 ```julia
 rightjoin(x, y, on = :key)
 ```
 :::
 
-| SQL | Stata | R | Julia (DataFrames.jl) |
+| SQL | Stata | R (dplyr) | Julia (DataFrames.jl) |
 |---|---|---|---|
 | `RIGHT OUTER JOIN` | `merge …; keep if _merge != 1` | `right_join()` | `rightjoin()` |
 
@@ -238,14 +231,14 @@ x |> full_join(y, join_by(key))
 ```
 
 ::: {.callout-note collapse="true"}
-## Julia equivalent
+## Julia
 
 ```julia
 outerjoin(x, y, on = :key)
 ```
 :::
 
-| SQL | Stata | R | Julia (DataFrames.jl) |
+| SQL | Stata | R (dplyr) | Julia (DataFrames.jl) |
 |---|---|---|---|
 | `FULL OUTER JOIN` | `merge …` (default, keep all) | `full_join()` | `outerjoin()` |
 
@@ -268,7 +261,7 @@ x |> semi_join(y, join_by(key))
 ```
 
 ::: {.callout-note collapse="true"}
-## Julia equivalent
+## Julia
 
 ```julia
 semijoin(x, y, on = :key)
@@ -284,7 +277,7 @@ x |> anti_join(y, join_by(key))
 ```
 
 ::: {.callout-note collapse="true"}
-## Julia equivalent
+## Julia
 
 ```julia
 antijoin(x, y, on = :key)
@@ -496,8 +489,28 @@ merge m:m firm_id using contracts.dta
 * Re-sort either file and you get different pairs.
 list firm_id employee contract _merge, sepby(firm_id) noobs
 
+
+  +---------------------------------------------+
+  | firm_id   employee   contract        _merge |
+  |---------------------------------------------|
+  | firm_42      Alice      C-001   Matched (3) |
+  | firm_42        Bob      C-002   Matched (3) |
+  | firm_42      Carol      C-003   Matched (3) |
+  |---------------------------------------------|
+  | firm_99       Dave      D-001   Matched (3) |
+  +---------------------------------------------+
+
+
 * All _merge == 3 gives false confidence that the merge "worked"
 tab _merge
+
+   Matching result from |
+                  merge |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+            Matched (3) |          4      100.00      100.00
+------------------------+-----------------------------------
+                  Total |          4      100.00
+
 ```
 
 ### Step 3 — Demonstrating sort-order dependence
@@ -523,6 +536,17 @@ merge m:m firm_id using contracts_reversed.dta
 * Now Alice→C-003, Bob→C-002, Carol→C-001
 * The 'result' changed just because we re-sorted the using file.
 list firm_id employee contract _merge, sepby(firm_id) noobs
+
+  +---------------------------------------------+
+  | firm_id   employee   contract        _merge |
+  |---------------------------------------------|
+  | firm_42      Alice      C-003   Matched (3) |
+  | firm_42        Bob      C-002   Matched (3) |
+  | firm_42      Carol      C-001   Matched (3) |
+  |---------------------------------------------|
+  | firm_99       Dave      D-001   Matched (3) |
+  +---------------------------------------------+
+
 ```
 
 ### Step 4 — The right way: `joinby`
@@ -542,9 +566,25 @@ joinby firm_id using contracts.dta
 
 list firm_id employee contract, sepby(firm_id) noobs
 
+  +-------------------------------+
+  | firm_id   employee   contract |
+  |-------------------------------|
+  | firm_42      Alice      C-002 |
+  | firm_42      Alice      C-001 |
+  | firm_42      Alice      C-003 |
+  | firm_42        Bob      C-002 |
+  | firm_42        Bob      C-003 |
+  | firm_42        Bob      C-001 |
+  | firm_42      Carol      C-001 |
+  | firm_42      Carol      C-003 |
+  | firm_42      Carol      C-002 |
+  |-------------------------------|
+  | firm_99       Dave      D-001 |
+  +-------------------------------+
+
+
 * firm_42: 3 employees × 3 contracts = 9 rows  ✓
 * firm_99: 1 employee  × 1 contract  = 1 row   ✓
-display as text _newline "Row count: " _N " (expected 10 = 9 + 1)"
 ```
 
 ### Step 5 — What you probably actually wanted: `merge 1:1` with a proper key
@@ -581,6 +621,18 @@ display as text _newline ///
 merge 1:1 firm_id contract_id using contracts_with_key.dta
 
 list firm_id employee contract_id contract_desc _merge, sepby(firm_id) noobs
+
+  +--------------------------------------------------------------------+
+  | firm_id   employee   contra~d          contract_desc        _merge |
+  |--------------------------------------------------------------------|
+  | firm_42      Alice      C-001       Software license   Matched (3) |
+  | firm_42        Bob      C-002    Consulting retainer   Matched (3) |
+  | firm_42      Carol      C-003        Hardware supply   Matched (3) |
+  |--------------------------------------------------------------------|
+  | firm_99       Dave      D-001   Maintenance contract   Matched (3) |
+  +--------------------------------------------------------------------+
+
+
 assert _merge == 3   // all rows should match — error if not
 ```
 

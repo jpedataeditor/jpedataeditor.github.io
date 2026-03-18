@@ -23,3 +23,20 @@ $primary: #94d0b9;
 .extrapad li:not(:last-child) {
   margin-bottom: 20px  !important;
 }
+.sourceCode {
+  font-size: 95%;
+  // padding-bottom: 20px;
+}
+
+// Output code (no .sourceCode class)
+// .cell-output pre,
+// .cell-output-stdout pre,
+// .cell-output-stderr pre {
+//   font-size: 95%;
+// }
+
+
+.cell-output pre,
+.cell-output pre code {
+  font-size: 90% !important;
+}

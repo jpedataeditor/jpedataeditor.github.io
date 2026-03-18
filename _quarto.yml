@@ -35,6 +35,8 @@ website:
         text: Best Practice     
       - href: faqs.qmd
         text: FAQs
+      - href: posts.qmd
+        text: Blog
       - href: de.qmd
         text: Data Editor
       
