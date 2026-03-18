@@ -1,0 +1,638 @@
+---
+title: "Merges and Joins: From SQL to Stata"
+subtitle: "A visual guide to inner joins, outer joins, and why `merge m:m` is almost never what you want"
+author:
+  - name: Florian Oswald
+    url: https://floswald.github.io/
+    orcid: 0000-0001-7737-2038
+    affiliation: Collegio Carlo Alberto, UniTo, JPE Data Editor
+    affiliation-url: https://jpedataeditor.github.io/ 
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    code-fold: false
+    theme: cosmo
+    highlight-style: github
+    fig-align: center
+    callout-appearance: simple
+    self-contained: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+::: {.callout-note appearance="minimal"}
+**Diagrams and code examples** in Sections 1–4 are adapted from:
+
+> Wickham H, Çetinkaya-Rundel M, Grolemund G (2023). *R for Data Science*, 2nd ed., Chapter 19 "Joins". <https://r4ds.hadley.nz/joins.html>
+
+That work is licensed under [CC BY-NC-ND 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/). The Stata-specific material in Sections 5–6 is original.
+:::
+
+::: {.callout-note}
+**Language coverage:** All executable code in Sections 1–4 is **R** and runs live in this notebook. Equivalent **Julia** (DataFrames.jl) syntax is shown alongside each example for reference but is not executed. A fully worked, copy-paste-ready **Stata** example appears in @sec-stata-worked.
+:::
+
+```{r}
+#| label: setup
+#| message: false
+
+# Loading 2 R libraries to illustrate
+library(tidyverse)
+library(nycflights13)
+```
+
+---
+
+## Keys: the foundation of every join
+
+Every join connects two tables through a pair of **keys**.
+
+- A **primary key** uniquely identifies each row in a table. It may be a single variable or a **compound key** (multiple variables together).
+- A **foreign key** references the primary key of another table.
+
+In the `nycflights13` package, for example, we have tables `planes`, `flights` and `airlines`:
+
+```{r}
+#| echo: true
+head(select(planes,tailnum,year,model),3)
+```
+
+and `flights`
+
+```{r}
+#| echo: true
+flights |>
+  select(tailnum,year,month,day) |>
+  arrange(tailnum) |>
+  head(3)
+```
+
+- `planes$tailnum` is the primary key of `planes`; `flights$tailnum` is a foreign key pointing to it.
+- similarly for `airlines$carrier`, which is the primary key of `airlines`; `flights$carrier` is the foreign key.
+- `weather` uses the compound primary key `(origin, time_hour)`.
+
+### Always verify key uniqueness
+
+Before joining, check that the variable you intend to use as a key is actually unique on the side where you expect it to be:
+
+```{r}
+planes |>
+  count(tailnum) |>
+  # any tailnum occuring more than once?
+  filter(n > 1) |>
+  # Should return 0 rows
+  nrow()
+```
+
+```{r}
+# Compound key check
+weather |>
+  count(time_hour, origin) |>
+  # any combo (time,origin) occuring more than once?
+  filter(n > 1) |>
+  nrow()  # same
+```
+
+Also check for missing values — a missing key cannot identify an observation:
+
+```{r}
+planes |> 
+  filter(is.na(tailnum)) |>
+  nrow()
+
+```
+
+::: {.callout-warning}
+**Common mistake:** assuming a variable is a unique key without checking.
+Duplicate keys on the wrong side are the root cause of most unintended many-to-many explosions.
+:::
+
+---
+
+## How joins work: a visual model
+
+We will use two small tables throughout this section.
+The `key` column in `x` takes values 1, 2, 3; in `y` it takes values 1, 2, 4.
+Key 3 exists only in `x`; key 4 only in `y`.
+
+```{r}
+# tribble() builds a small data frame row-by-row;
+# column names are prefixed with ~ (tilde)
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     3, "x3"
+)
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2",
+     4, "y3"
+)
+x   # print x — 3 rows, keys 1/2/3
+y   # print y — 3 rows, keys 1/2/4
+```
+
+::: {.callout-note collapse="true"}
+## Julia equivalent
+
+```julia
+using DataFrames
+
+x = DataFrame(key = [1, 2, 3], val_x = ["x1", "x2", "x3"])
+y = DataFrame(key = [1, 2, 4], val_y = ["y1", "y2", "y3"])
+```
+:::
+
+![Two example tables. Key values are color-coded: green=1, purple=2, orange=3, yellow=4.](https://r4ds.hadley.nz/diagrams/join/setup.png){fig-alt="x and y are two data frames with 2 columns and 3 rows. Key values are color-coded."}
+
+To reason about any join, imagine a grid of all *possible* matches between every row of `x` and every row of `y`. The join type then determines which intersections become actual rows in the output.
+
+![Every possible match as a grid. Dots will indicate which intersections produce output rows.](https://r4ds.hadley.nz/diagrams/join/setup2.png){fig-alt="x and y placed at right-angles with a grid of connecting lines showing all potential matches."}
+
+---
+
+## The four standard join types
+
+### Inner join
+
+Keeps only rows where the key appears in **both** tables. Unmatched rows from either side are silently dropped.
+
+![Inner join: only keys 1 and 2 match, so the output has 2 rows.](https://r4ds.hadley.nz/diagrams/join/inner.png){fig-alt="Inner join diagram with dots at key=1 and key=2 intersections."}
+
+```{r}
+x |> inner_join(y, join_by(key))
+```
+
+::: {.callout-note collapse="true"}
+## Julia equivalent
+
+```julia
+innerjoin(x, y, on = :key)
+```
+:::
+
+| SQL | Stata | R | Julia (DataFrames.jl) |
+|---|---|---|---|
+| `INNER JOIN` | `merge …; keep if _merge == 3` | `inner_join()` | `innerjoin()` |
+
+### Left join
+
+Keeps **all rows from x**. Where there is no match in `y`, value columns from `y` are filled with `NA` (Stata: `.`).
+
+![Left join: all 3 rows of x survive; key=3 gets NA for val_y.](https://r4ds.hadley.nz/diagrams/join/left.png){fig-alt="Left join diagram where x gets a virtual row for unmatched key=3."}
+
+```{r}
+x |> left_join(y, join_by(key))
+```
+
+::: {.callout-note collapse="true"}
+## Julia equivalent
+
+```julia
+leftjoin(x, y, on = :key)
+```
+:::
+
+| SQL | Stata | R | Julia (DataFrames.jl) |
+|---|---|---|---|
+| `LEFT OUTER JOIN` | `merge …; keep if _merge != 2` | `left_join()` | `leftjoin()` |
+
+### Right join
+
+Keeps **all rows from y**. Unmatched rows from `y` get `NA` for the `x` columns.
+
+![Right join: all 3 rows of y survive; key=4 gets NA for val_x.](https://r4ds.hadley.nz/diagrams/join/right.png){fig-alt="Right join diagram where y gets a virtual row for unmatched key=4."}
+
+```{r}
+x |> right_join(y, join_by(key))
+```
+
+::: {.callout-note collapse="true"}
+## Julia equivalent
+
+```julia
+rightjoin(x, y, on = :key)
+```
+:::
+
+| SQL | Stata | R | Julia (DataFrames.jl) |
+|---|---|---|---|
+| `RIGHT OUTER JOIN` | `merge …; keep if _merge != 1` | `right_join()` | `rightjoin()` |
+
+### Full join
+
+Keeps **all rows from both** tables. Unmatched rows get `NA` on the side with no match. This is **Stata's default `merge` behavior**.
+
+![Full join: all 4 keys appear; unmatched cells are NA.](https://r4ds.hadley.nz/diagrams/join/full.png){fig-alt="Full join diagram where both x and y have virtual rows for unmatched keys."}
+
+```{r}
+x |> full_join(y, join_by(key))
+```
+
+::: {.callout-note collapse="true"}
+## Julia equivalent
+
+```julia
+outerjoin(x, y, on = :key)
+```
+:::
+
+| SQL | Stata | R | Julia (DataFrames.jl) |
+|---|---|---|---|
+| `FULL OUTER JOIN` | `merge …` (default, keep all) | `full_join()` | `outerjoin()` |
+
+### Venn diagram summary
+
+A useful (though imperfect) memory aid. It correctly shows *which rows survive* but does not illustrate what happens to columns from the non-surviving side.
+
+![Venn diagram view of the four join types.](https://r4ds.hadley.nz/diagrams/join/venn.png){fig-alt="Venn diagrams for inner, full, left and right joins showing shaded regions."}
+
+### Filtering joins
+
+These don't add columns — they just filter rows based on whether a match exists.
+
+**Semi-join:** keeps rows in `x` that *have* at least one match in `y`. No columns from `y` are added.
+
+![Semi-join: only existence of a match matters.](https://r4ds.hadley.nz/diagrams/join/semi.png){fig-alt="Semi-join diagram showing only matched rows retained from x."}
+
+```{r}
+x |> semi_join(y, join_by(key))
+```
+
+::: {.callout-note collapse="true"}
+## Julia equivalent
+
+```julia
+semijoin(x, y, on = :key)
+```
+:::
+
+**Anti-join:** keeps rows in `x` that have *no* match in `y`. Excellent for diagnosing unmatched observations.
+
+![Anti-join: inverse of semi-join; matched rows are dropped (shown in red).](https://r4ds.hadley.nz/diagrams/join/anti.png){fig-alt="Anti-join diagram where matched rows are marked for dropping."}
+
+```{r}
+x |> anti_join(y, join_by(key))
+```
+
+::: {.callout-note collapse="true"}
+## Julia equivalent
+
+```julia
+antijoin(x, y, on = :key)
+```
+:::
+
+---
+
+## Row matching and cardinality
+
+What happens when a key value appears more than once on one side?
+
+![Three matching scenarios: one match, two matches, zero matches.](https://r4ds.hadley.nz/diagrams/join/match-types.png){fig-alt="Join diagram showing key=1 matching once, key=2 matching twice, key=3 matching zero times."}
+
+Three outcomes are possible for a row in `x`:
+
+- **Zero matches** → dropped (in inner/left joins: kept with NAs for outer joins)
+- **One match** → preserved as-is
+- **Multiple matches** → duplicated once per match
+
+The dangerous case is when **both sides have duplicates** on the key. With 3 rows for `key=2` in `x` and 3 rows for `key=2` in `y`, a relational join produces 3 × 3 = 9 rows for that key group alone. `dplyr` warns you:
+
+```{r}
+#| warning: true
+df1 <- tibble(key = c(1, 2, 2), val_x = c("x1", "x2", "x3"))
+df2 <- tibble(key = c(1, 2, 2), val_y = c("y1", "y2", "y3"))
+
+df1 |> inner_join(df2, join_by(key))
+```
+
+| Key uniqueness | Name | Output rows | Risk |
+|---|---|---|---|
+| Unique on both sides | 1:1 | ≤ matched rows | Low |
+| Unique on x, duplicates on y | 1:m | = rows in y (matched keys) | Low |
+| Duplicates on x, unique on y | m:1 | = rows in x (matched keys) | Low |
+| Duplicates on both sides (relational) | m:m | = Cartesian product per group | Verify intent |
+| Stata's `merge m:m` | positional | = max(n_x, n_y) per group | **Critical** |
+
+---
+
+## Stata's `merge` command {#sec-stata-merge}
+
+Stata's `merge` is a **full outer join by default**. The `_merge` indicator it creates tells you the match status of each row:
+
+| `_merge` value | Meaning | SQL analogy |
+|---|---|---|
+| `1` — master only | Row in left dataset, no match in right | Left outer, unmatched |
+| `2` — using only | Row in right dataset, no match in left | Right outer, unmatched |
+| `3` — matched | Row matched in both datasets | Inner join result |
+
+The merge *type prefix* declares the expected key cardinality. Stata will error if the data violates the declared cardinality — which is a useful safeguard:
+
+```stata
+* 1:1 — key unique on BOTH sides
+merge 1:1 firm_id year using "balance_sheet.dta"
+
+* m:1 — key may repeat in master, unique in using
+*       (adding region-level attributes to a firm-year panel)
+merge m:1 region_id using "region_controls.dta"
+
+* 1:m — unique in master, may repeat in using
+merge 1:m firm_id using "patents.dta"
+
+* Controlling what rows to keep after the merge
+keep if _merge == 3   // inner join
+keep if _merge != 2   // left join
+keep if _merge != 1   // right join
+drop _merge           // always drop _merge when done
+```
+
+::: {.callout-tip}
+**Best practice:** always inspect `_merge` after every merge.
+Use `assert _merge == 3` if you expect a perfect match, or `tab _merge` to check for unexpected non-matches.
+Never leave `_merge` in the working dataset without examining it.
+:::
+
+---
+
+## The `merge m:m` problem {#sec-merge-mm}
+
+::: {.callout-important}
+### `merge m:m` is not a relational join
+
+Despite the name, `merge m:m` in Stata does **not** produce the Cartesian product of matching key groups.
+It performs **positional row-matching within key groups**: it pairs rows by their position after sorting by the key variable — 1st row with 1st row, 2nd with 2nd, and so on.
+
+This is almost certainly not what the author intended, and its output depends silently on the sort order of the data.
+:::
+
+### A concrete example
+
+Suppose both datasets have multiple rows for `firm_id = 42`:
+
+**Master** (`employees.dta`):
+
+| firm_id | employee |
+|---|---|
+| 42 | Alice |
+| 42 | Bob |
+| 42 | Carol |
+
+**Using** (`contracts.dta`):
+
+| firm_id | contract |
+|---|---|
+| 42 | C-001 |
+| 42 | C-002 |
+| 42 | C-003 |
+
+#### What `merge m:m` actually produces
+
+Stata pairs by position within the key group:
+
+```stata
+merge m:m firm_id using "contracts.dta"
+```
+
+| firm_id | employee | contract | How? |
+|---|---|---|---|
+| 42 | Alice | C-001 | 1st ↔ 1st |
+| 42 | Bob | C-002 | 2nd ↔ 2nd |
+| 42 | Carol | C-003 | 3rd ↔ 3rd |
+
+Alice is matched to C-001 **not because of any meaningful relationship** between them, but because both happen to be first in their respective files.
+Re-sort either dataset before the merge and you get a different result.
+
+#### What a true m:m (relational) join produces
+
+`joinby` in Stata, or `inner_join()` in R when both sides have duplicates, produces the **full Cartesian product** — every combination:
+
+| firm_id | employee | contract |
+|---|---|---|
+| 42 | Alice | C-001 |
+| 42 | Alice | C-002 |
+| 42 | Alice | C-003 |
+| 42 | Bob | C-001 |
+| 42 | Bob | C-002 |
+| 42 | Bob | C-003 |
+| 42 | Carol | C-001 |
+| 42 | Carol | C-002 |
+| 42 | Carol | C-003 |
+
+Nine rows, not three. The `merge m:m` result is neither a relational join nor a documented data transformation — it is a positional artifact.
+
+### Why this is a critical reproducibility issue
+
+::: {.callout-important}
+The output of `merge m:m` is **sort-order dependent**.
+Two researchers running the same code on data with different sort histories may get different results — even with identical `_merge == 3` counts.
+The code is logically wrong even when results happen to replicate.
+:::
+
+---
+
+## Worked Stata example: `merge m:m` vs `joinby` {#sec-stata-worked}
+
+The script below is **self-contained and copy-paste ready**: it builds the datasets from scratch using `input`, runs both the wrong and the correct merge, and cleans up after itself. No external `.dta` files are needed.
+
+### Step 1 — Build the two datasets
+
+```stata
+clear all
+set more off
+
+* --- employees.dta -----------------------------------------------------------
+input str10 firm_id str8 employee
+    "firm_42"   "Alice"
+    "firm_42"   "Bob"
+    "firm_42"   "Carol"
+    "firm_99"   "Dave"
+end
+
+label var firm_id  "Firm identifier"
+label var employee "Employee name"
+
+save employees.dta, replace
+
+* --- contracts.dta -----------------------------------------------------------
+clear
+input str10 firm_id str8 contract
+    "firm_42"   "C-001"
+    "firm_42"   "C-002"
+    "firm_42"   "C-003"
+    "firm_99"   "D-001"
+end
+
+label var firm_id  "Firm identifier"
+label var contract "Contract reference"
+
+save contracts.dta, replace
+```
+
+### Step 2 — The wrong way: `merge m:m`
+
+Stata pairs rows **by position** within each key group after sorting.
+The result depends entirely on the current sort order of both files — it is not a relational join.
+
+```stata
+use employees.dta, clear
+
+display as text _newline ///
+    "================================================" _newline ///
+    "  WRONG: merge m:m (positional row-pairing)"     _newline ///
+    "================================================"
+
+merge m:m firm_id using contracts.dta
+
+* Alice→C-001, Bob→C-002, Carol→C-003 — purely positional.
+* Re-sort either file and you get different pairs.
+list firm_id employee contract _merge, sepby(firm_id) noobs
+
+* All _merge == 3 gives false confidence that the merge "worked"
+tab _merge
+```
+
+### Step 3 — Demonstrating sort-order dependence
+
+```stata
+* Reverse the order of contracts for firm_42 and re-run.
+* The employee-contract pairs change — even though _merge is still all 3s.
+
+use contracts.dta, clear
+gsort firm_id -contract          // reverse alphabetical order within firm
+save contracts_reversed.dta, replace
+
+use employees.dta, clear
+
+display as text _newline ///
+    "================================================"         _newline ///
+    "  WRONG: merge m:m after reversing contracts"             _newline ///
+    "  (same _merge=3, completely different pairs!)"           _newline ///
+    "================================================"
+
+merge m:m firm_id using contracts_reversed.dta
+
+* Now Alice→C-003, Bob→C-002, Carol→C-001
+* The 'result' changed just because we re-sorted the using file.
+list firm_id employee contract _merge, sepby(firm_id) noobs
+```
+
+### Step 4 — The right way: `joinby`
+
+`joinby` produces the true relational many-to-many join: the full **Cartesian product** within each key group.
+Every (employee, contract) combination appears exactly once, and the result does **not** depend on sort order.
+
+```stata
+use employees.dta, clear
+
+display as text _newline ///
+    "================================================" _newline ///
+    "  CORRECT: joinby (Cartesian product per group)" _newline ///
+    "================================================"
+
+joinby firm_id using contracts.dta
+
+list firm_id employee contract, sepby(firm_id) noobs
+
+* firm_42: 3 employees × 3 contracts = 9 rows  ✓
+* firm_99: 1 employee  × 1 contract  = 1 row   ✓
+display as text _newline "Row count: " _N " (expected 10 = 9 + 1)"
+```
+
+### Step 5 — What you probably actually wanted: `merge 1:1` with a proper key
+
+In most real cases, `merge m:m` signals a **missing key variable**. The data likely has a meaningful unique key you haven't identified yet. Once you find it, use the appropriate typed merge:
+
+```stata
+* employees with explicit contract assignment
+clear
+input str10 firm_id str8 employee str8 contract_id
+    "firm_42"   "Alice"   "C-001"
+    "firm_42"   "Bob"     "C-002"
+    "firm_42"   "Carol"   "C-003"
+    "firm_99"   "Dave"    "D-001"
+end
+save employees_with_key.dta, replace
+
+clear
+input str10 firm_id str8 contract_id str20 contract_desc
+    "firm_42"   "C-001"   "Software license"
+    "firm_42"   "C-002"   "Consulting retainer"
+    "firm_42"   "C-003"   "Hardware supply"
+    "firm_99"   "D-001"   "Maintenance contract"
+end
+save contracts_with_key.dta, replace
+
+use employees_with_key.dta, clear
+
+display as text _newline ///
+    "================================================"          _newline ///
+    "  ALTERNATIVE: merge 1:1 once you identify the key"        _newline ///
+    "================================================"
+
+merge 1:1 firm_id contract_id using contracts_with_key.dta
+
+list firm_id employee contract_id contract_desc _merge, sepby(firm_id) noobs
+assert _merge == 3   // all rows should match — error if not
+```
+
+### Clean up
+
+```stata
+erase employees.dta
+erase employees_with_key.dta
+erase contracts.dta
+erase contracts_reversed.dta
+erase contracts_with_key.dta
+
+display as text _newline "Done."
+```
+
+| Command | Semantics | Output rows | Use when |
+|---|---|---|---|
+| `merge 1:1` | Relational, unique key both sides | ≤ rows in master | Adding scalar attributes |
+| `merge m:1` | Relational, unique key on using side | = rows in master | Adding group-level vars to panel |
+| `merge 1:m` | Relational, unique key on master side | ≥ rows in master | Expanding (e.g. firm → firm-product) |
+| `joinby` | True m:m Cartesian join | = product of group sizes | Rarely; only when all combos are meaningful |
+| `merge m:m` | Positional row-pairing ⚠️ | = max(n_x, n_y) per group | **Almost never** |
+
+---
+
+## Quick reference
+
+| SQL | Stata | R (dplyr) | Julia (DataFrames.jl) | Rows kept |
+|---|---|---|---|---|
+| `INNER JOIN` | `merge …; keep if _merge==3` | `inner_join()` | `innerjoin()` | Both sides matched |
+| `LEFT OUTER JOIN` | `merge …; keep if _merge!=2` | `left_join()` | `leftjoin()` | All of master |
+| `RIGHT OUTER JOIN` | `merge …; keep if _merge!=1` | `right_join()` | `rightjoin()` | All of using |
+| `FULL OUTER JOIN` | `merge …` (default) | `full_join()` | `outerjoin()` | All rows both sides |
+| `WHERE EXISTS` | — | `semi_join()` | `semijoin()` | x rows with a match in y |
+| `WHERE NOT EXISTS` | — | `anti_join()` | `antijoin()` | x rows with no match in y |
+| Cartesian m:m | `joinby` | (dplyr warns, use `relationship="many-to-many"`) | `crossjoin()` | All combinations |
+| ⚠️ Positional pairing | `merge m:m` | — | — | Unpredictable — avoid |
+
+::: {.callout-tip}
+**Pre-merge checklist:**
+
+1. Run `duplicates report [keyvar]` on both datasets.
+2. Choose the merge type that matches the actual cardinality.
+3. After merging, always inspect `_merge` — never leave it unchecked.
+4. Assert the expected outcome: `assert _merge == 3` if all rows should match.
+5. If you find `merge m:m` in someone else's code: flag it.
+:::
+
+---
+
+## Further reading
+
+- Wickham H, Çetinkayer-Rundel M, Grolemund G (2023). *R for Data Science (2e)*, Ch. 19 Joins. <https://r4ds.hadley.nz/joins.html>
+- Stata manual: `help merge`, `help joinby`
+- StataCorp (2023). *Stata Base Reference Manual*, `merge` entry — note the explicit warning against `merge m:m`
