@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Florian Oswald">
+<meta name="dcterms.date" content="2026-03-18">
+<meta name="description" content="A visual guide to inner joins, outer joins, and why merge m:m is almost never what you want">
+
+<title>Merges and Joins: From SQL to Stata – JPE Data Editor</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../img/jpeicon.png" rel="icon" type="image/png">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-404c876712b97409b1357abd2d40b4ad.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-098M22QPXE"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-098M22QPXE', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":"",
+"website_privacy_policy_url":"https://jpedataeditor.github.io/privacy.html"
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Merges and Joins: From SQL to Stata</li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Merges and Joins: From SQL to Stata</h1>
+                  <div>
+        <div class="description">
+          A visual guide to inner joins, outer joins, and why <code>merge m:m</code> is almost never what you want
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">STATA</div>
+                <div class="quarto-category">R</div>
+              </div>
+                  </div>
+  </div>
+    
+  <div class="quarto-title-meta-author">
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-heading">Affiliation</div>
+    
+      <div class="quarto-title-meta-contents">
+      <p class="author"><a href="https://floswald.github.io/">Florian Oswald</a> <a href="https://orcid.org/0000-0001-7737-2038" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+    </div>
+    <div class="quarto-title-meta-contents">
+          <p class="affiliation">
+              <a href="https://jpedataeditor.github.io/">
+              Collegio Carlo Alberto, UniTo, JPE Data Editor
+              </a>
+            </p>
+        </div>
+    </div>
+
+  <div class="quarto-title-meta">
+
+        
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">March 18, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+      <a href="../../index.html" class="sidebar-logo-link">
+      <img src="../../img/jpe.jpg" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../img/jpe.jpg" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../policy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Code and Data Policy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../before.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Before Submission</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../package.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preparing the Package</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../best.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Best Practice</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../faqs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">FAQs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../posts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Blog</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../de.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data Editor</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#keys-the-foundation-of-every-join" id="toc-keys-the-foundation-of-every-join" class="nav-link active" data-scroll-target="#keys-the-foundation-of-every-join"><span class="header-section-number">1</span> Keys: the foundation of every join</a>
+  <ul class="collapse">
+  <li><a href="#always-verify-key-uniqueness" id="toc-always-verify-key-uniqueness" class="nav-link" data-scroll-target="#always-verify-key-uniqueness"><span class="header-section-number">1.1</span> Always verify key uniqueness</a></li>
+  </ul></li>
+  <li><a href="#how-joins-work-a-visual-model" id="toc-how-joins-work-a-visual-model" class="nav-link" data-scroll-target="#how-joins-work-a-visual-model"><span class="header-section-number">2</span> How joins work: a visual model</a></li>
+  <li><a href="#the-four-standard-join-types" id="toc-the-four-standard-join-types" class="nav-link" data-scroll-target="#the-four-standard-join-types"><span class="header-section-number">3</span> The four standard join types</a>
+  <ul class="collapse">
+  <li><a href="#inner-join" id="toc-inner-join" class="nav-link" data-scroll-target="#inner-join"><span class="header-section-number">3.1</span> Inner join</a></li>
+  <li><a href="#left-join" id="toc-left-join" class="nav-link" data-scroll-target="#left-join"><span class="header-section-number">3.2</span> Left join</a></li>
+  <li><a href="#right-join" id="toc-right-join" class="nav-link" data-scroll-target="#right-join"><span class="header-section-number">3.3</span> Right join</a></li>
+  <li><a href="#full-join" id="toc-full-join" class="nav-link" data-scroll-target="#full-join"><span class="header-section-number">3.4</span> Full join</a></li>
+  <li><a href="#venn-diagram-summary" id="toc-venn-diagram-summary" class="nav-link" data-scroll-target="#venn-diagram-summary"><span class="header-section-number">3.5</span> Venn diagram summary</a></li>
+  <li><a href="#filtering-joins" id="toc-filtering-joins" class="nav-link" data-scroll-target="#filtering-joins"><span class="header-section-number">3.6</span> Filtering joins</a></li>
+  </ul></li>
+  <li><a href="#row-matching-and-cardinality" id="toc-row-matching-and-cardinality" class="nav-link" data-scroll-target="#row-matching-and-cardinality"><span class="header-section-number">4</span> Row matching and cardinality</a></li>
+  <li><a href="#sec-stata-merge" id="toc-sec-stata-merge" class="nav-link" data-scroll-target="#sec-stata-merge"><span class="header-section-number">5</span> Stata’s <code>merge</code> command</a></li>
+  <li><a href="#sec-merge-mm" id="toc-sec-merge-mm" class="nav-link" data-scroll-target="#sec-merge-mm"><span class="header-section-number">6</span> The <code>merge m:m</code> problem</a>
+  <ul class="collapse">
+  <li><a href="#a-concrete-example" id="toc-a-concrete-example" class="nav-link" data-scroll-target="#a-concrete-example"><span class="header-section-number">6.1</span> A concrete example</a></li>
+  <li><a href="#why-this-is-a-critical-reproducibility-issue" id="toc-why-this-is-a-critical-reproducibility-issue" class="nav-link" data-scroll-target="#why-this-is-a-critical-reproducibility-issue"><span class="header-section-number">6.2</span> Why this is a critical reproducibility issue</a></li>
+  </ul></li>
+  <li><a href="#sec-stata-worked" id="toc-sec-stata-worked" class="nav-link" data-scroll-target="#sec-stata-worked"><span class="header-section-number">7</span> Worked Stata example: <code>merge m:m</code> vs <code>joinby</code></a>
+  <ul class="collapse">
+  <li><a href="#step-1-build-the-two-datasets" id="toc-step-1-build-the-two-datasets" class="nav-link" data-scroll-target="#step-1-build-the-two-datasets"><span class="header-section-number">7.1</span> Step 1 — Build the two datasets</a></li>
+  <li><a href="#step-2-the-wrong-way-merge-mm" id="toc-step-2-the-wrong-way-merge-mm" class="nav-link" data-scroll-target="#step-2-the-wrong-way-merge-mm"><span class="header-section-number">7.2</span> Step 2 — The wrong way: <code>merge m:m</code></a></li>
+  <li><a href="#step-3-demonstrating-sort-order-dependence" id="toc-step-3-demonstrating-sort-order-dependence" class="nav-link" data-scroll-target="#step-3-demonstrating-sort-order-dependence"><span class="header-section-number">7.3</span> Step 3 — Demonstrating sort-order dependence</a></li>
+  <li><a href="#step-4-the-right-way-joinby" id="toc-step-4-the-right-way-joinby" class="nav-link" data-scroll-target="#step-4-the-right-way-joinby"><span class="header-section-number">7.4</span> Step 4 — The right way: <code>joinby</code></a></li>
+  <li><a href="#step-5-what-you-probably-actually-wanted-merge-11-with-a-proper-key" id="toc-step-5-what-you-probably-actually-wanted-merge-11-with-a-proper-key" class="nav-link" data-scroll-target="#step-5-what-you-probably-actually-wanted-merge-11-with-a-proper-key"><span class="header-section-number">7.5</span> Step 5 — What you probably actually wanted: <code>merge 1:1</code> with a proper key</a></li>
+  <li><a href="#clean-up" id="toc-clean-up" class="nav-link" data-scroll-target="#clean-up"><span class="header-section-number">7.6</span> Clean up</a></li>
+  </ul></li>
+  <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link" data-scroll-target="#quick-reference"><span class="header-section-number">8</span> Quick reference</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">9</span> Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Diagrams and code examples</strong> in Sections 1–4 are adapted from:</p>
+<blockquote class="blockquote">
+<p>Wickham H, Çetinkaya-Rundel M, Grolemund G (2023). <em>R for Data Science</em>, 2nd ed., Chapter 19 “Joins”. <a href="https://r4ds.hadley.nz/joins.html" class="uri">https://r4ds.hadley.nz/joins.html</a></p>
+</blockquote>
+<p>That work is licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/3.0/">CC BY-NC-ND 3.0</a>. The Stata-specific material in Sections 5–6 is original.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Language coverage:</strong> All executable code in Sections 1–4 is <strong>R</strong> and runs live in this notebook. Equivalent <strong>Julia</strong> (DataFrames.jl) syntax is shown alongside each example for reference but is not executed. A fully worked, copy-paste-ready <strong>Stata</strong> example appears in <a href="#sec-stata-worked" class="quarto-xref">Section&nbsp;7</a>.</p>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Loading 2 R libraries to illustrate</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nycflights13)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+<section id="keys-the-foundation-of-every-join" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="keys-the-foundation-of-every-join"><span class="header-section-number">1</span> Keys: the foundation of every join</h2>
+<p>Every join connects two tables through a pair of <strong>keys</strong>.</p>
+<ul>
+<li>A <strong>primary key</strong> uniquely identifies each row in a table. It may be a single variable or a <strong>compound key</strong> (multiple variables together).</li>
+<li>A <strong>foreign key</strong> references the primary key of another table.</li>
+</ul>
+<p>In the <code>nycflights13</code> package, for example, we have tables <code>planes</code>, <code>flights</code> and <code>airlines</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">select</span>(planes,tailnum,year,model),<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  tailnum  year model    
+  &lt;chr&gt;   &lt;int&gt; &lt;chr&gt;    
+1 N10156   2004 EMB-145XR
+2 N102UW   1998 A320-214 
+3 N103US   1999 A320-214 </code></pre>
+</div>
+</div>
+<p>and <code>flights</code></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tailnum,year,month,day) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(tailnum) <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  tailnum  year month   day
+  &lt;chr&gt;   &lt;int&gt; &lt;int&gt; &lt;int&gt;
+1 D942DN   2013     2    11
+2 D942DN   2013     3    23
+3 D942DN   2013     3    24</code></pre>
+</div>
+</div>
+<ul>
+<li><code>planes$tailnum</code> is the primary key of <code>planes</code>; <code>flights$tailnum</code> is a foreign key pointing to it.</li>
+<li>similarly for <code>airlines$carrier</code>, which is the primary key of <code>airlines</code>; <code>flights$carrier</code> is the foreign key.</li>
+<li><code>weather</code> uses the compound primary key <code>(origin, time_hour)</code>.</li>
+</ul>
+<section id="always-verify-key-uniqueness" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="always-verify-key-uniqueness"><span class="header-section-number">1.1</span> Always verify key uniqueness</h3>
+<p>Before joining, check that the variable you intend to use as a key is actually unique on the side where you expect it to be:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>planes <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(tailnum) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># any tailnum occuring more than once?</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Should return 0 rows</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compound key check</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>weather <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(time_hour, origin) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># any combo (time,origin) occuring more than once?</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>()  <span class="co"># same</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<p>Also check for missing values — a missing key cannot identify an observation:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>planes <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(tailnum)) <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Common mistake:</strong> assuming a variable is a unique key without checking. Duplicate keys on the wrong side are the root cause of most unintended many-to-many explosions.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="how-joins-work-a-visual-model" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="how-joins-work-a-visual-model"><span class="header-section-number">2</span> How joins work: a visual model</h2>
+<p>We will use two small tables throughout this section. The <code>key</code> column in <code>x</code> takes values 1, 2, 3; in <code>y</code> it takes values 1, 2, 4. Key 3 exists only in <code>x</code>; key 4 only in <code>y</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tribble() builds a small data frame row-by-row;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># column names are prefixed with ~ (tilde)</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span>key, <span class="sc">~</span>val_x,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>     <span class="dv">1</span>, <span class="st">"x1"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>     <span class="dv">2</span>, <span class="st">"x2"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>     <span class="dv">3</span>, <span class="st">"x3"</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span>key, <span class="sc">~</span>val_y,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>     <span class="dv">1</span>, <span class="st">"y1"</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>     <span class="dv">2</span>, <span class="st">"y2"</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>     <span class="dv">4</span>, <span class="st">"y3"</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>x   <span class="co"># print x — 3 rows, keys 1/2/3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+    key val_x
+  &lt;dbl&gt; &lt;chr&gt;
+1     1 x1   
+2     2 x2   
+3     3 x3   </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>y   <span class="co"># print y — 3 rows, keys 1/2/4</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+    key val_y
+  &lt;dbl&gt; &lt;chr&gt;
+1     1 y1   
+2     2 y2   
+3     4 y3   </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Julia
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DataFrames</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fu">DataFrame</span>(key <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>], val_x <span class="op">=</span> [<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>])</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="fu">DataFrame</span>(key <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>], val_y <span class="op">=</span> [<span class="st">"y1"</span>, <span class="st">"y2"</span>, <span class="st">"y3"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/setup.png" class="img-fluid figure-img" alt="x and y are two data frames with 2 columns and 3 rows. Key values are color-coded."></p>
+<figcaption>Two example tables. Key values are color-coded: green=1, purple=2, orange=3, yellow=4.</figcaption>
+</figure>
+</div>
+<p>To reason about any join, imagine a grid of all <em>possible</em> matches between every row of <code>x</code> and every row of <code>y</code>. The join type then determines which intersections become actual rows in the output.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/setup2.png" class="img-fluid figure-img" alt="x and y placed at right-angles with a grid of connecting lines showing all potential matches."></p>
+<figcaption>Every possible match as a grid. Dots will indicate which intersections produce output rows.</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="the-four-standard-join-types" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="the-four-standard-join-types"><span class="header-section-number">3</span> The four standard join types</h2>
+<section id="inner-join" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="inner-join"><span class="header-section-number">3.1</span> Inner join</h3>
+<p>Keeps only rows where the key appears in <strong>both</strong> tables. Unmatched rows from either side are silently dropped.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/inner.png" class="img-fluid figure-img" alt="Inner join diagram with dots at key=1 and key=2 intersections."></p>
+<figcaption>Inner join: only keys 1 and 2 match, so the output has 2 rows.</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>x <span class="sc">|&gt;</span> <span class="fu">inner_join</span>(y, <span class="fu">join_by</span>(key))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+    key val_x val_y
+  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+1     1 x1    y1   
+2     2 x2    y2   </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Julia
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">innerjoin</span>(x, y, on <span class="op">=</span> <span class="op">:</span>key)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>SQL</th>
+<th>Stata</th>
+<th>R (dplyr)</th>
+<th>Julia (DataFrames.jl)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>INNER JOIN</code></td>
+<td><code>merge …; keep if _merge == 3</code></td>
+<td><code>inner_join()</code></td>
+<td><code>innerjoin()</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="left-join" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="left-join"><span class="header-section-number">3.2</span> Left join</h3>
+<p>Keeps <strong>all rows from x</strong>. Where there is no match in <code>y</code>, value columns from <code>y</code> are filled with <code>NA</code> (Stata: <code>.</code>).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/left.png" class="img-fluid figure-img" alt="Left join diagram where x gets a virtual row for unmatched key=3."></p>
+<figcaption>Left join: all 3 rows of x survive; key=3 gets NA for val_y.</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>x <span class="sc">|&gt;</span> <span class="fu">left_join</span>(y, <span class="fu">join_by</span>(key))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+    key val_x val_y
+  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+1     1 x1    y1   
+2     2 x2    y2   
+3     3 x3    &lt;NA&gt; </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Julia
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">leftjoin</span>(x, y, on <span class="op">=</span> <span class="op">:</span>key)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>SQL</th>
+<th>Stata</th>
+<th>R (dplyr)</th>
+<th>Julia (DataFrames.jl)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>LEFT OUTER JOIN</code></td>
+<td><code>merge …; keep if _merge != 2</code></td>
+<td><code>left_join()</code></td>
+<td><code>leftjoin()</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="right-join" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="right-join"><span class="header-section-number">3.3</span> Right join</h3>
+<p>Keeps <strong>all rows from y</strong>. Unmatched rows from <code>y</code> get <code>NA</code> for the <code>x</code> columns.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/right.png" class="img-fluid figure-img" alt="Right join diagram where y gets a virtual row for unmatched key=4."></p>
+<figcaption>Right join: all 3 rows of y survive; key=4 gets NA for val_x.</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>x <span class="sc">|&gt;</span> <span class="fu">right_join</span>(y, <span class="fu">join_by</span>(key))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+    key val_x val_y
+  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+1     1 x1    y1   
+2     2 x2    y2   
+3     4 &lt;NA&gt;  y3   </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Julia
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rightjoin</span>(x, y, on <span class="op">=</span> <span class="op">:</span>key)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>SQL</th>
+<th>Stata</th>
+<th>R (dplyr)</th>
+<th>Julia (DataFrames.jl)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>RIGHT OUTER JOIN</code></td>
+<td><code>merge …; keep if _merge != 1</code></td>
+<td><code>right_join()</code></td>
+<td><code>rightjoin()</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="full-join" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="full-join"><span class="header-section-number">3.4</span> Full join</h3>
+<p>Keeps <strong>all rows from both</strong> tables. Unmatched rows get <code>NA</code> on the side with no match. This is <strong>Stata’s default <code>merge</code> behavior</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/full.png" class="img-fluid figure-img" alt="Full join diagram where both x and y have virtual rows for unmatched keys."></p>
+<figcaption>Full join: all 4 keys appear; unmatched cells are NA.</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>x <span class="sc">|&gt;</span> <span class="fu">full_join</span>(y, <span class="fu">join_by</span>(key))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+    key val_x val_y
+  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+1     1 x1    y1   
+2     2 x2    y2   
+3     3 x3    &lt;NA&gt; 
+4     4 &lt;NA&gt;  y3   </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Julia
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">outerjoin</span>(x, y, on <span class="op">=</span> <span class="op">:</span>key)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>SQL</th>
+<th>Stata</th>
+<th>R (dplyr)</th>
+<th>Julia (DataFrames.jl)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>FULL OUTER JOIN</code></td>
+<td><code>merge …</code> (default, keep all)</td>
+<td><code>full_join()</code></td>
+<td><code>outerjoin()</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="venn-diagram-summary" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="venn-diagram-summary"><span class="header-section-number">3.5</span> Venn diagram summary</h3>
+<p>A useful (though imperfect) memory aid. It correctly shows <em>which rows survive</em> but does not illustrate what happens to columns from the non-surviving side.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/venn.png" class="img-fluid figure-img" alt="Venn diagrams for inner, full, left and right joins showing shaded regions."></p>
+<figcaption>Venn diagram view of the four join types.</figcaption>
+</figure>
+</div>
+</section>
+<section id="filtering-joins" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="filtering-joins"><span class="header-section-number">3.6</span> Filtering joins</h3>
+<p>These don’t add columns — they just filter rows based on whether a match exists.</p>
+<p><strong>Semi-join:</strong> keeps rows in <code>x</code> that <em>have</em> at least one match in <code>y</code>. No columns from <code>y</code> are added.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/semi.png" class="img-fluid figure-img" alt="Semi-join diagram showing only matched rows retained from x."></p>
+<figcaption>Semi-join: only existence of a match matters.</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>x <span class="sc">|&gt;</span> <span class="fu">semi_join</span>(y, <span class="fu">join_by</span>(key))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+    key val_x
+  &lt;dbl&gt; &lt;chr&gt;
+1     1 x1   
+2     2 x2   </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Julia
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">semijoin</span>(x, y, on <span class="op">=</span> <span class="op">:</span>key)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<p><strong>Anti-join:</strong> keeps rows in <code>x</code> that have <em>no</em> match in <code>y</code>. Excellent for diagnosing unmatched observations.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/anti.png" class="img-fluid figure-img" alt="Anti-join diagram where matched rows are marked for dropping."></p>
+<figcaption>Anti-join: inverse of semi-join; matched rows are dropped (shown in red).</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>x <span class="sc">|&gt;</span> <span class="fu">anti_join</span>(y, <span class="fu">join_by</span>(key))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+    key val_x
+  &lt;dbl&gt; &lt;chr&gt;
+1     3 x3   </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Julia
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">antijoin</span>(x, y, on <span class="op">=</span> <span class="op">:</span>key)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="row-matching-and-cardinality" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="row-matching-and-cardinality"><span class="header-section-number">4</span> Row matching and cardinality</h2>
+<p>What happens when a key value appears more than once on one side?</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://r4ds.hadley.nz/diagrams/join/match-types.png" class="img-fluid figure-img" alt="Join diagram showing key=1 matching once, key=2 matching twice, key=3 matching zero times."></p>
+<figcaption>Three matching scenarios: one match, two matches, zero matches.</figcaption>
+</figure>
+</div>
+<p>Three outcomes are possible for a row in <code>x</code>:</p>
+<ul>
+<li><strong>Zero matches</strong> → dropped (in inner/left joins: kept with NAs for outer joins)</li>
+<li><strong>One match</strong> → preserved as-is</li>
+<li><strong>Multiple matches</strong> → duplicated once per match</li>
+</ul>
+<p>The dangerous case is when <strong>both sides have duplicates</strong> on the key. With 3 rows for <code>key=2</code> in <code>x</code> and 3 rows for <code>key=2</code> in <code>y</code>, a relational join produces 3 × 3 = 9 rows for that key group alone. <code>dplyr</code> warns you:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">key =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>), <span class="at">val_x =</span> <span class="fu">c</span>(<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>))</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">key =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>), <span class="at">val_y =</span> <span class="fu">c</span>(<span class="st">"y1"</span>, <span class="st">"y2"</span>, <span class="st">"y3"</span>))</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>df1 <span class="sc">|&gt;</span> <span class="fu">inner_join</span>(df2, <span class="fu">join_by</span>(key))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in inner_join(df1, df2, join_by(key)): Detected an unexpected many-to-many relationship between `x` and `y`.
+ℹ Row 2 of `x` matches multiple rows in `y`.
+ℹ Row 2 of `y` matches multiple rows in `x`.
+ℹ If a many-to-many relationship is expected, set `relationship =
+  "many-to-many"` to silence this warning.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 3
+    key val_x val_y
+  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+1     1 x1    y1   
+2     2 x2    y2   
+3     2 x2    y3   
+4     2 x3    y2   
+5     2 x3    y3   </code></pre>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Key uniqueness</th>
+<th>Name</th>
+<th>Output rows</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Unique on both sides</td>
+<td>1:1</td>
+<td>≤ matched rows</td>
+<td>Low</td>
+</tr>
+<tr class="even">
+<td>Unique on x, duplicates on y</td>
+<td>1:m</td>
+<td>= rows in y (matched keys)</td>
+<td>Low</td>
+</tr>
+<tr class="odd">
+<td>Duplicates on x, unique on y</td>
+<td>m:1</td>
+<td>= rows in x (matched keys)</td>
+<td>Low</td>
+</tr>
+<tr class="even">
+<td>Duplicates on both sides (relational)</td>
+<td>m:m</td>
+<td>= Cartesian product per group</td>
+<td>Verify intent</td>
+</tr>
+<tr class="odd">
+<td>Stata’s <code>merge m:m</code></td>
+<td>positional</td>
+<td>= max(n_x, n_y) per group</td>
+<td><strong>Critical</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="sec-stata-merge" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="sec-stata-merge"><span class="header-section-number">5</span> Stata’s <code>merge</code> command</h2>
+<p>Stata’s <code>merge</code> is a <strong>full outer join by default</strong>. The <code>_merge</code> indicator it creates tells you the match status of each row:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><code>_merge</code> value</th>
+<th>Meaning</th>
+<th>SQL analogy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>1</code> — master only</td>
+<td>Row in left dataset, no match in right</td>
+<td>Left outer, unmatched</td>
+</tr>
+<tr class="even">
+<td><code>2</code> — using only</td>
+<td>Row in right dataset, no match in left</td>
+<td>Right outer, unmatched</td>
+</tr>
+<tr class="odd">
+<td><code>3</code> — matched</td>
+<td>Row matched in both datasets</td>
+<td>Inner join result</td>
+</tr>
+</tbody>
+</table>
+<p>The merge <em>type prefix</em> declares the expected key cardinality. Stata will error if the data violates the declared cardinality — which is a useful safeguard:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>* 1:1 — key <span class="kw">unique</span> <span class="kw">on</span> BOTH sides</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="kw">merge</span> 1:1 firm_id <span class="fu">year</span> <span class="kw">using</span> <span class="st">"balance_sheet.dta"</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>* <span class="fu">m</span>:1 — key may <span class="kw">repeat</span> <span class="kw">in</span> master, <span class="kw">unique</span> <span class="kw">in</span> <span class="kw">using</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>*       (adding region-<span class="dv">level</span> attributes to a firm-<span class="fu">year</span> panel)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="kw">merge</span> <span class="fu">m</span>:1 region_id <span class="kw">using</span> <span class="st">"region_controls.dta"</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>* 1:<span class="fu">m</span> — <span class="kw">unique</span> <span class="kw">in</span> master, may <span class="kw">repeat</span> <span class="kw">in</span> <span class="kw">using</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="kw">merge</span> 1:<span class="fu">m</span> firm_id <span class="kw">using</span> <span class="st">"patents.dta"</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>* Controlling what <span class="bn">rows</span> to <span class="kw">keep</span> after the <span class="kw">merge</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a><span class="kw">keep</span> <span class="kw">if</span> <span class="dt">_merge</span> == 3   <span class="co">// inner join</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="kw">keep</span> <span class="kw">if</span> <span class="dt">_merge</span> != 2   <span class="co">// left join</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a><span class="kw">keep</span> <span class="kw">if</span> <span class="dt">_merge</span> != 1   <span class="co">// right join</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a><span class="kw">drop</span> <span class="dt">_merge</span>           <span class="co">// always drop _merge when done</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Best practice:</strong> always inspect <code>_merge</code> after every merge. Use <code>assert _merge == 3</code> if you expect a perfect match, or <code>tab _merge</code> to check for unexpected non-matches. Never leave <code>_merge</code> in the working dataset without examining it.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-merge-mm" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="sec-merge-mm"><span class="header-section-number">6</span> The <code>merge m:m</code> problem</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span><code>merge m:m</code> is not a relational join
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Despite the name, <code>merge m:m</code> in Stata does <strong>not</strong> produce the Cartesian product of matching key groups. It performs <strong>positional row-matching within key groups</strong>: it pairs rows by their position after sorting by the key variable — 1st row with 1st row, 2nd with 2nd, and so on.</p>
+<p>This is almost certainly not what the author intended, and its output depends silently on the sort order of the data.</p>
+</div>
+</div>
+<section id="a-concrete-example" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="a-concrete-example"><span class="header-section-number">6.1</span> A concrete example</h3>
+<p>Suppose both datasets have multiple rows for <code>firm_id = 42</code>:</p>
+<p><strong>Master</strong> (<code>employees.dta</code>):</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>firm_id</th>
+<th>employee</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>42</td>
+<td>Alice</td>
+</tr>
+<tr class="even">
+<td>42</td>
+<td>Bob</td>
+</tr>
+<tr class="odd">
+<td>42</td>
+<td>Carol</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Using</strong> (<code>contracts.dta</code>):</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>firm_id</th>
+<th>contract</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>42</td>
+<td>C-001</td>
+</tr>
+<tr class="even">
+<td>42</td>
+<td>C-002</td>
+</tr>
+<tr class="odd">
+<td>42</td>
+<td>C-003</td>
+</tr>
+</tbody>
+</table>
+<section id="what-merge-mm-actually-produces" class="level4" data-number="6.1.1">
+<h4 data-number="6.1.1" class="anchored" data-anchor-id="what-merge-mm-actually-produces"><span class="header-section-number">6.1.1</span> What <code>merge m:m</code> actually produces</h4>
+<p>Stata pairs by position within the key group:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">merge</span> <span class="fu">m</span>:<span class="fu">m</span> firm_id <span class="kw">using</span> <span class="st">"contracts.dta"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>firm_id</th>
+<th>employee</th>
+<th>contract</th>
+<th>How?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>42</td>
+<td>Alice</td>
+<td>C-001</td>
+<td>1st ↔︎ 1st</td>
+</tr>
+<tr class="even">
+<td>42</td>
+<td>Bob</td>
+<td>C-002</td>
+<td>2nd ↔︎ 2nd</td>
+</tr>
+<tr class="odd">
+<td>42</td>
+<td>Carol</td>
+<td>C-003</td>
+<td>3rd ↔︎ 3rd</td>
+</tr>
+</tbody>
+</table>
+<p>Alice is matched to C-001 <strong>not because of any meaningful relationship</strong> between them, but because both happen to be first in their respective files. Re-sort either dataset before the merge and you get a different result.</p>
+</section>
+<section id="what-a-true-mm-relational-join-produces" class="level4" data-number="6.1.2">
+<h4 data-number="6.1.2" class="anchored" data-anchor-id="what-a-true-mm-relational-join-produces"><span class="header-section-number">6.1.2</span> What a true m:m (relational) join produces</h4>
+<p><code>joinby</code> in Stata, or <code>inner_join()</code> in R when both sides have duplicates, produces the <strong>full Cartesian product</strong> — every combination:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>firm_id</th>
+<th>employee</th>
+<th>contract</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>42</td>
+<td>Alice</td>
+<td>C-001</td>
+</tr>
+<tr class="even">
+<td>42</td>
+<td>Alice</td>
+<td>C-002</td>
+</tr>
+<tr class="odd">
+<td>42</td>
+<td>Alice</td>
+<td>C-003</td>
+</tr>
+<tr class="even">
+<td>42</td>
+<td>Bob</td>
+<td>C-001</td>
+</tr>
+<tr class="odd">
+<td>42</td>
+<td>Bob</td>
+<td>C-002</td>
+</tr>
+<tr class="even">
+<td>42</td>
+<td>Bob</td>
+<td>C-003</td>
+</tr>
+<tr class="odd">
+<td>42</td>
+<td>Carol</td>
+<td>C-001</td>
+</tr>
+<tr class="even">
+<td>42</td>
+<td>Carol</td>
+<td>C-002</td>
+</tr>
+<tr class="odd">
+<td>42</td>
+<td>Carol</td>
+<td>C-003</td>
+</tr>
+</tbody>
+</table>
+<p>Nine rows, not three. The <code>merge m:m</code> result is neither a relational join nor a documented data transformation — it is a positional artifact.</p>
+</section>
+</section>
+<section id="why-this-is-a-critical-reproducibility-issue" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="why-this-is-a-critical-reproducibility-issue"><span class="header-section-number">6.2</span> Why this is a critical reproducibility issue</h3>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The output of <code>merge m:m</code> is <strong>sort-order dependent</strong>. Two researchers running the same code on data with different sort histories may get different results — even with identical <code>_merge == 3</code> counts. The code is logically wrong even when results happen to replicate.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="sec-stata-worked" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="sec-stata-worked"><span class="header-section-number">7</span> Worked Stata example: <code>merge m:m</code> vs <code>joinby</code></h2>
+<p>The script below is <strong>self-contained and copy-paste ready</strong>: it builds the datasets from scratch using <code>input</code>, runs both the wrong and the correct merge, and cleans up after itself. No external <code>.dta</code> files are needed.</p>
+<section id="step-1-build-the-two-datasets" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="step-1-build-the-two-datasets"><span class="header-section-number">7.1</span> Step 1 — Build the two datasets</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">clear</span> <span class="ot">all</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="kw">set</span> <span class="kw">more</span> <span class="kw">off</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>* --- employees.dta -----------------------------------------------------------</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>input str10 firm_id str8 employee</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"Alice"</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"Bob"</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"Carol"</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_99"</span>   <span class="st">"Dave"</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="kw">label</span> <span class="kw">var</span> firm_id  <span class="st">"Firm identifier"</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="kw">label</span> <span class="kw">var</span> employee <span class="st">"Employee name"</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a><span class="kw">save</span> employees.dta, <span class="kw">replace</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>* --- contracts.dta -----------------------------------------------------------</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a><span class="kw">clear</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>input str10 firm_id str8 <span class="kw">contract</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"C-001"</span></span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"C-002"</span></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"C-003"</span></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_99"</span>   <span class="st">"D-001"</span></span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a><span class="kw">label</span> <span class="kw">var</span> firm_id  <span class="st">"Firm identifier"</span></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a><span class="kw">label</span> <span class="kw">var</span> <span class="kw">contract</span> <span class="st">"Contract reference"</span></span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a><span class="kw">save</span> contracts.dta, <span class="kw">replace</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="step-2-the-wrong-way-merge-mm" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="step-2-the-wrong-way-merge-mm"><span class="header-section-number">7.2</span> Step 2 — The wrong way: <code>merge m:m</code></h3>
+<p>Stata pairs rows <strong>by position</strong> within each key group after sorting. The result depends entirely on the current sort order of both files — it is not a relational join.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> employees.dta, <span class="kw">clear</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="kw">as</span> <span class="bn">text</span> <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"================================================"</span> <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"  WRONG: merge m:m (positional row-pairing)"</span>     <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"================================================"</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="kw">merge</span> <span class="fu">m</span>:<span class="fu">m</span> firm_id <span class="kw">using</span> contracts.dta</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>* Alice→C-001, Bob→C-002, Carol→C-003 — purely positional.</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>* Re-<span class="kw">sort</span> either file and you <span class="fu">get</span> different pairs.</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span> firm_id employee <span class="kw">contract</span> <span class="dt">_merge</span>, sepby(firm_id) <span class="kw">noobs</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>  +---------------------------------------------+</span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>  | firm_id   employee   <span class="kw">contract</span>        <span class="dt">_merge</span> |</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>  |---------------------------------------------|</span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>  | firm_42      Alice      C-001   Matched (3) |</span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>  | firm_42        Bob      C-002   Matched (3) |</span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>  | firm_42      Carol      C-003   Matched (3) |</span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>  |---------------------------------------------|</span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>  | firm_99       Dave      D-001   Matched (3) |</span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>  +---------------------------------------------+</span>
+<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a>* All <span class="dt">_merge</span> == 3 gives false confidence that the <span class="kw">merge</span> <span class="st">"worked"</span></span>
+<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a><span class="kw">tab</span> <span class="dt">_merge</span></span>
+<span id="cb41-28"><a href="#cb41-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-29"><a href="#cb41-29" aria-hidden="true" tabindex="-1"></a>   Matching result from |</span>
+<span id="cb41-30"><a href="#cb41-30" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">merge</span> |      Freq.     Percent        Cum.</span>
+<span id="cb41-31"><a href="#cb41-31" aria-hidden="true" tabindex="-1"></a>------------------------+-----------------------------------</span>
+<span id="cb41-32"><a href="#cb41-32" aria-hidden="true" tabindex="-1"></a>            Matched (3) |          4      100.00      100.00</span>
+<span id="cb41-33"><a href="#cb41-33" aria-hidden="true" tabindex="-1"></a>------------------------+-----------------------------------</span>
+<span id="cb41-34"><a href="#cb41-34" aria-hidden="true" tabindex="-1"></a>                  Total |          4      100.00</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="step-3-demonstrating-sort-order-dependence" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="step-3-demonstrating-sort-order-dependence"><span class="header-section-number">7.3</span> Step 3 — Demonstrating sort-order dependence</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>* Reverse the <span class="kw">order</span> <span class="kw">of</span> contracts <span class="kw">for</span> firm_42 and re-<span class="kw">run</span>.</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>* The employee-<span class="kw">contract</span> pairs change — even though <span class="dt">_merge</span> is still <span class="ot">all</span> 3s.</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> contracts.dta, <span class="kw">clear</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="kw">gsort</span> firm_id -<span class="kw">contract</span>          <span class="co">// reverse alphabetical order within firm</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="kw">save</span> contracts_reversed.dta, <span class="kw">replace</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> employees.dta, <span class="kw">clear</span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="kw">as</span> <span class="bn">text</span> <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"================================================"</span>         <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"  WRONG: merge m:m after reversing contracts"</span>             <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"  (same _merge=3, completely different pairs!)"</span>           <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"================================================"</span></span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a><span class="kw">merge</span> <span class="fu">m</span>:<span class="fu">m</span> firm_id <span class="kw">using</span> contracts_reversed.dta</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>* Now Alice→C-003, Bob→C-002, Carol→C-001</span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>* The 'result' changed just because we re-sorted the <span class="kw">using</span> file.</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span> firm_id employee <span class="kw">contract</span> <span class="dt">_merge</span>, sepby(firm_id) <span class="kw">noobs</span></span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>  +---------------------------------------------+</span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>  | firm_id   employee   <span class="kw">contract</span>        <span class="dt">_merge</span> |</span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>  |---------------------------------------------|</span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>  | firm_42      Alice      C-003   Matched (3) |</span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>  | firm_42        Bob      C-002   Matched (3) |</span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a>  | firm_42      Carol      C-001   Matched (3) |</span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true" tabindex="-1"></a>  |---------------------------------------------|</span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true" tabindex="-1"></a>  | firm_99       Dave      D-001   Matched (3) |</span>
+<span id="cb42-30"><a href="#cb42-30" aria-hidden="true" tabindex="-1"></a>  +---------------------------------------------+</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="step-4-the-right-way-joinby" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="step-4-the-right-way-joinby"><span class="header-section-number">7.4</span> Step 4 — The right way: <code>joinby</code></h3>
+<p><code>joinby</code> produces the true relational many-to-many join: the full <strong>Cartesian product</strong> within each key group. Every (employee, contract) combination appears exactly once, and the result does <strong>not</strong> depend on sort order.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> employees.dta, <span class="kw">clear</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="kw">as</span> <span class="bn">text</span> <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"================================================"</span> <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"  CORRECT: joinby (Cartesian product per group)"</span> <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"================================================"</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a><span class="kw">joinby</span> firm_id <span class="kw">using</span> contracts.dta</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span> firm_id employee <span class="kw">contract</span>, sepby(firm_id) <span class="kw">noobs</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  +-------------------------------+</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>  | firm_id   employee   <span class="kw">contract</span> |</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>  |-------------------------------|</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>  | firm_42      Alice      C-002 |</span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>  | firm_42      Alice      C-001 |</span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>  | firm_42      Alice      C-003 |</span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>  | firm_42        Bob      C-002 |</span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>  | firm_42        Bob      C-003 |</span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>  | firm_42        Bob      C-001 |</span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>  | firm_42      Carol      C-001 |</span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>  | firm_42      Carol      C-003 |</span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>  | firm_42      Carol      C-002 |</span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>  |-------------------------------|</span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>  | firm_99       Dave      D-001 |</span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>  +-------------------------------+</span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a>* firm_42: 3 employees × 3 contracts = 9 <span class="bn">rows</span>  ✓</span>
+<span id="cb43-30"><a href="#cb43-30" aria-hidden="true" tabindex="-1"></a>* firm_99: 1 employee  × 1 <span class="kw">contract</span>  = 1 <span class="ot">row</span>   ✓</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="step-5-what-you-probably-actually-wanted-merge-11-with-a-proper-key" class="level3" data-number="7.5">
+<h3 data-number="7.5" class="anchored" data-anchor-id="step-5-what-you-probably-actually-wanted-merge-11-with-a-proper-key"><span class="header-section-number">7.5</span> Step 5 — What you probably actually wanted: <code>merge 1:1</code> with a proper key</h3>
+<p>In most real cases, <code>merge m:m</code> signals a <strong>missing key variable</strong>. The data likely has a meaningful unique key you haven’t identified yet. Once you find it, use the appropriate typed merge:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>* employees with <span class="kw">explicit</span> <span class="kw">contract</span> assignment</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="kw">clear</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>input str10 firm_id str8 employee str8 contract_id</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"Alice"</span>   <span class="st">"C-001"</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"Bob"</span>     <span class="st">"C-002"</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"Carol"</span>   <span class="st">"C-003"</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_99"</span>   <span class="st">"Dave"</span>    <span class="st">"D-001"</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="kw">save</span> employees_with_key.dta, <span class="kw">replace</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a><span class="kw">clear</span></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>input str10 firm_id str8 contract_id str20 contract_desc</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"C-001"</span>   <span class="st">"Software license"</span></span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"C-002"</span>   <span class="st">"Consulting retainer"</span></span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_42"</span>   <span class="st">"C-003"</span>   <span class="st">"Hardware supply"</span></span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"firm_99"</span>   <span class="st">"D-001"</span>   <span class="st">"Maintenance contract"</span></span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a><span class="kw">save</span> contracts_with_key.dta, <span class="kw">replace</span></span>
+<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> employees_with_key.dta, <span class="kw">clear</span></span>
+<span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="kw">as</span> <span class="bn">text</span> <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb44-23"><a href="#cb44-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"================================================"</span>          <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb44-24"><a href="#cb44-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"  ALTERNATIVE: merge 1:1 once you identify the key"</span>        <span class="dt">_newline</span> <span class="co">///</span></span>
+<span id="cb44-25"><a href="#cb44-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"================================================"</span></span>
+<span id="cb44-26"><a href="#cb44-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-27"><a href="#cb44-27" aria-hidden="true" tabindex="-1"></a><span class="kw">merge</span> 1:1 firm_id contract_id <span class="kw">using</span> contracts_with_key.dta</span>
+<span id="cb44-28"><a href="#cb44-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-29"><a href="#cb44-29" aria-hidden="true" tabindex="-1"></a><span class="ot">list</span> firm_id employee contract_id contract_desc <span class="dt">_merge</span>, sepby(firm_id) <span class="kw">noobs</span></span>
+<span id="cb44-30"><a href="#cb44-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-31"><a href="#cb44-31" aria-hidden="true" tabindex="-1"></a>  +--------------------------------------------------------------------+</span>
+<span id="cb44-32"><a href="#cb44-32" aria-hidden="true" tabindex="-1"></a>  | firm_id   employee   contra~<span class="kw">d</span>          contract_desc        <span class="dt">_merge</span> |</span>
+<span id="cb44-33"><a href="#cb44-33" aria-hidden="true" tabindex="-1"></a>  |--------------------------------------------------------------------|</span>
+<span id="cb44-34"><a href="#cb44-34" aria-hidden="true" tabindex="-1"></a>  | firm_42      Alice      C-001       Software license   Matched (3) |</span>
+<span id="cb44-35"><a href="#cb44-35" aria-hidden="true" tabindex="-1"></a>  | firm_42        Bob      C-002    Consulting retainer   Matched (3) |</span>
+<span id="cb44-36"><a href="#cb44-36" aria-hidden="true" tabindex="-1"></a>  | firm_42      Carol      C-003        Hardware supply   Matched (3) |</span>
+<span id="cb44-37"><a href="#cb44-37" aria-hidden="true" tabindex="-1"></a>  |--------------------------------------------------------------------|</span>
+<span id="cb44-38"><a href="#cb44-38" aria-hidden="true" tabindex="-1"></a>  | firm_99       Dave      D-001   Maintenance <span class="kw">contract</span>   Matched (3) |</span>
+<span id="cb44-39"><a href="#cb44-39" aria-hidden="true" tabindex="-1"></a>  +--------------------------------------------------------------------+</span>
+<span id="cb44-40"><a href="#cb44-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-41"><a href="#cb44-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-42"><a href="#cb44-42" aria-hidden="true" tabindex="-1"></a><span class="kw">assert</span> <span class="dt">_merge</span> == 3   <span class="co">// all rows should match — error if not</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="clean-up" class="level3" data-number="7.6">
+<h3 data-number="7.6" class="anchored" data-anchor-id="clean-up"><span class="header-section-number">7.6</span> Clean up</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode stata code-with-copy"><code class="sourceCode stata"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>erase employees.dta</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>erase employees_with_key.dta</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>erase contracts.dta</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>erase contracts_reversed.dta</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>erase contracts_with_key.dta</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="kw">display</span> <span class="kw">as</span> <span class="bn">text</span> <span class="dt">_newline</span> <span class="st">"Done."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Semantics</th>
+<th>Output rows</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>merge 1:1</code></td>
+<td>Relational, unique key both sides</td>
+<td>≤ rows in master</td>
+<td>Adding scalar attributes</td>
+</tr>
+<tr class="even">
+<td><code>merge m:1</code></td>
+<td>Relational, unique key on using side</td>
+<td>= rows in master</td>
+<td>Adding group-level vars to panel</td>
+</tr>
+<tr class="odd">
+<td><code>merge 1:m</code></td>
+<td>Relational, unique key on master side</td>
+<td>≥ rows in master</td>
+<td>Expanding (e.g.&nbsp;firm → firm-product)</td>
+</tr>
+<tr class="even">
+<td><code>joinby</code></td>
+<td>True m:m Cartesian join</td>
+<td>= product of group sizes</td>
+<td>Rarely; only when all combos are meaningful</td>
+</tr>
+<tr class="odd">
+<td><code>merge m:m</code></td>
+<td>Positional row-pairing ⚠️</td>
+<td>= max(n_x, n_y) per group</td>
+<td><strong>Almost never</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="quick-reference" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="quick-reference"><span class="header-section-number">8</span> Quick reference</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>SQL</th>
+<th>Stata</th>
+<th>R (dplyr)</th>
+<th>Julia (DataFrames.jl)</th>
+<th>Rows kept</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>INNER JOIN</code></td>
+<td><code>merge …; keep if _merge==3</code></td>
+<td><code>inner_join()</code></td>
+<td><code>innerjoin()</code></td>
+<td>Both sides matched</td>
+</tr>
+<tr class="even">
+<td><code>LEFT OUTER JOIN</code></td>
+<td><code>merge …; keep if _merge!=2</code></td>
+<td><code>left_join()</code></td>
+<td><code>leftjoin()</code></td>
+<td>All of master</td>
+</tr>
+<tr class="odd">
+<td><code>RIGHT OUTER JOIN</code></td>
+<td><code>merge …; keep if _merge!=1</code></td>
+<td><code>right_join()</code></td>
+<td><code>rightjoin()</code></td>
+<td>All of using</td>
+</tr>
+<tr class="even">
+<td><code>FULL OUTER JOIN</code></td>
+<td><code>merge …</code> (default)</td>
+<td><code>full_join()</code></td>
+<td><code>outerjoin()</code></td>
+<td>All rows both sides</td>
+</tr>
+<tr class="odd">
+<td><code>WHERE EXISTS</code></td>
+<td>—</td>
+<td><code>semi_join()</code></td>
+<td><code>semijoin()</code></td>
+<td>x rows with a match in y</td>
+</tr>
+<tr class="even">
+<td><code>WHERE NOT EXISTS</code></td>
+<td>—</td>
+<td><code>anti_join()</code></td>
+<td><code>antijoin()</code></td>
+<td>x rows with no match in y</td>
+</tr>
+<tr class="odd">
+<td>Cartesian m:m</td>
+<td><code>joinby</code></td>
+<td>(dplyr warns, use <code>relationship="many-to-many"</code>)</td>
+<td><code>crossjoin()</code></td>
+<td>All combinations</td>
+</tr>
+<tr class="even">
+<td>⚠️ Positional pairing</td>
+<td><code>merge m:m</code></td>
+<td>—</td>
+<td>—</td>
+<td>Unpredictable — avoid</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Pre-merge checklist:</strong></p>
+<ol type="1">
+<li>Run <code>duplicates report [keyvar]</code> on both datasets.</li>
+<li>Choose the merge type that matches the actual cardinality.</li>
+<li>After merging, always inspect <code>_merge</code> — never leave it unchecked.</li>
+<li>Assert the expected outcome: <code>assert _merge == 3</code> if all rows should match.</li>
+<li>If you find <code>merge m:m</code> in someone else’s code: flag it.</li>
+</ol>
+</div>
+</div>
+<hr>
+</section>
+<section id="further-reading" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">9</span> Further reading</h2>
+<ul>
+<li>Wickham H, Çetinkayer-Rundel M, Grolemund G (2023). <em>R for Data Science (2e)</em>, Ch. 19 Joins. <a href="https://r4ds.hadley.nz/joins.html" class="uri">https://r4ds.hadley.nz/joins.html</a></li>
+<li>Stata manual: <code>help merge</code>, <code>help joinby</code></li>
+<li>StataCorp (2023). <em>Stata Base Reference Manual</em>, <code>merge</code> entry — note the explicit warning against <code>merge m:m</code></li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("git@github-jpe:jpedataeditor\/jpedataeditor\.github\.io\.git");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>JPE Data Editor: <a href="mailto:jpe.dataeditor@gmail.com">jpe.dataeditor@gmail.com</a> <br> JPE Journal Office: <a href="mailto:jpe@press.uchicago.edu">jpe@press.uchicago.edu</a></p>
+</div>   
+    <div class="nav-footer-center">
+<p>© <a href="https://floswald.github.io">Florian Oswald</a> 2026</p>
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/jpedataeditor/jpedataeditor.github.io/issues/new/choose">Report an Issue</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
