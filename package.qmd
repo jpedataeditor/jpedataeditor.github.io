@@ -181,11 +181,11 @@ Once the reproducibility checks are concluded, and upon invitation of the Data E
 2. Log in and click on *Add Data > New Dataset*. ![](img/dv1.png)
 3. Fill in all required but **do not add any data** at this step. Instead, click on *Save Dataset*. ![](img/dv2.png)
 4. Your deposit will be created. Now you can select *Upload Files*. ![](img/dv3.png)
-5. On the resulting screen, it is **compulsory** to select the *Upload a Folder* button and to upload **in uncompressed format** the *exact same package* which the Data Editor sign off on (again, only difference is that your package is not compressed here). The correspondence between uploaded and accepted package will be checked automatically. ![](img/dv4.png)
+5. On the resulting screen, it is **compulsory** to select the *Upload a Folder* button and to upload **in uncompressed format** the *exact same package* which the Data Editor sign off on (again, only difference is that your package is not compressed here). The correspondence between uploaded and accepted package will be checked automatically. Uploading files is limited to less than 1000 files per upload, a maximum file size of 9.3BG per file, and a total transfer time per upload of less than 60 minutes. You can perform multiple uploads. If you experience issues with this, please contact the data editor! ![](img/dv4.png)
 6. ⚠️ **Do not include the content of the `confidential-data-not-for-publication` folder**!
 7. After the folder upload has finished, reload the dataverse page of your deposit. Check your files are visible at the bottom. 
 8. Fill in *the required metadata*! Click on the *metadata* tab, then on *edit/add metdata* on the right. ![](img/dv8.png)
-9. Everything in *red* below needs to be filled out. ![](img/dv6.png) ![](img/dv7.png)
+9.  Everything in *red* below needs to be filled out. ![](img/dv6.png) ![](img/dv7.png)
 10. Finally, Click on *Submit for Review*. ![](img/dv5.png)
 11. After verification of your deposit by the Data Editor, your package will be published on the JPE dataverse, and the process of reproducibility checks comes to an end.
 
