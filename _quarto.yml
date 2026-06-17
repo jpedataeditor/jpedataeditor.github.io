@@ -32,7 +32,7 @@ website:
       - href: package.qmd
         text: Preparing the Package
       - href: best.qmd
-        text: Best Practice     
+        text: Best Practice
       - href: faqs.qmd
         text: FAQs
       - href: posts.qmd
