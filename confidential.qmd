@@ -1,0 +1,238 @@
+---
+title: "Procedure for Simulated Confidential Data"
+number-sections: true
+---
+
+When you have been granted a data exemption and **cannot provide temporary access** to your confidential data, you must supply a simulated or synthetic dataset together with the corresponding simulated output. This page explains what exactly to do, and we provide examples and coding agent instructions.
+
+::: {.callout-note}
+If granting temporary access is at all feasible, it is strongly preferred. See the [FAQs](faqs.qmd#procedures-when-exemptions-are-granted) for a full discussion of the options.
+:::
+
+## What the Data Editor Needs to Check
+
+The goal is not to reproduce your published results. It is to verify that your code is **complete**, **self-contained**, and **logically consistent**: given simulated input data with the right structure, the code runs without errors and produces *all* outputs (tables, figures, in-text numbers) described in the paper - of course those will be different than the ones in your paper.
+
+## Steps for Authors {#sec-steps}
+
+Follow these steps in order.
+
+1. **Identify every confidential raw input file** your code reads. List them in your `README`.
+
+2. **Create a dedicated simulation script which generates a simulated version of each file.** The simulated data must satisfy the following:
+   - **Same dimensionality**: same number of variables (columns) and same number of observations (rows).
+   - **Same variable names and types**: column names, data types (integer, float, string, date), and units must match the real data exactly, because your code will reference them by name.
+   - **Same file format**: if your code reads a `.dta` file, supply a `.dta` file; if it reads a `.csv`, supply a `.csv`.
+   - **Respect sign and support restrictions**: if a variable is always positive in the real data (e.g. income, price, age), simulate it as positive. If a variable is a dummy, simulate it as 0/1. If a categorical variable takes values $\{1,2,3\}$, simulate it within that set. You do not need to match the distribution, but violating the support can cause downstream failures.
+   - **Cover all relevant code paths**: make sure the simulated data contains at least one observation in each group or cell your code conditions on (e.g. all regions, all time periods, all treatment arms).
+
+3. **Set a random seed** at the top of your simulation script so that the simulated data is exactly reproducible.
+
+4. **Run your full pipeline on the simulated data** from the first cleaning script to the last output script. Fix any errors that arise. Do not skip any script.
+
+5. **Collect the simulated output.** Save every table, figure, and in-text number produced by the simulated run in an `output-simulated/` folder (or equivalent clearly labelled folder) inside your replication package.
+
+6. **Include the simulation script** in your replication package (e.g. in `code/simulate/`) so the Data Editor can inspect it and, if needed, re-generate the simulated data.
+
+7. **Document everything in your `README`**: which files are simulated, how they were generated (pointer to the simulation script), and that the `output-simulated/` folder contains the expected outputs for the simulated run.
+
+8. **Submit your package.** The Data Editor will run your pipeline on the simulated data and verify that the output matches what is in `output-simulated/`.
+
+::: {.callout-important}
+The simulated output you provide in step 5 is the **reference**. The Data Editor must be able to run your code on the simulated data and obtain output that is **identical** to your reference output. Make sure your code is deterministic given the same simulated inputs (set seeds for any stochastic steps).
+:::
+
+## How to Simulate Data: Examples {#sec-examples}
+
+The following examples illustrate how to create a simulated dataset for a typical panel dataset with variables `id` (firm identifier), `year`, `revenue` (always positive), `employment` (positive integer), `treated` (binary), and `sector` (categorical, values 1–4).
+
+### Stata
+
+[Download `simulate_confidential.do`](scripts/simulate_confidential.do){.btn .btn-outline-secondary .btn-sm}
+
+```stata
+clear
+set seed 42
+
+* --- dimensions ---
+local n_firms  200
+local n_years  10
+local N = `n_firms' * `n_years'
+
+set obs `N'
+
+* firm and year identifiers
+gen id   = ceil(_n / `n_years')
+gen year = 1990 + mod(_n - 1, `n_years')
+
+* positive continuous variable (log-normal)
+gen revenue    = exp(rnormal(10, 1))
+
+* positive integer
+gen employment = max(1, round(exp(rnormal(4, 0.8))))
+
+* binary treatment (assigned at firm level so it is constant within firm)
+bysort id (year): gen treated = (runiform() < 0.4) if _n == 1
+bysort id: replace treated = treated[1]
+
+* categorical sector (1–4), assigned at firm level
+bysort id (year): gen sector = ceil(runiform() * 4) if _n == 1
+bysort id: replace sector = sector[1]
+
+* label and save
+label variable revenue    "Annual revenue (USD)"
+label variable employment "Number of employees"
+label variable treated    "Treatment indicator"
+label variable sector     "Sector (1–4)"
+
+save "data/raw/simulated_panel.dta", replace
+```
+
+### R
+
+[Download `simulate_confidential.R`](scripts/simulate_confidential.R){.btn .btn-outline-secondary .btn-sm}
+
+```r
+set.seed(42)
+
+n_firms <- 200
+n_years <- 10
+
+panel <- expand.grid(
+  id   = 1:n_firms,
+  year = 1990:(1990 + n_years - 1)
+)
+
+# firm-level variables (constant within firm)
+firm_chars <- data.frame(
+  id       = 1:n_firms,
+  treated  = as.integer(runif(n_firms) < 0.4),
+  sector   = sample(1:4, n_firms, replace = TRUE)
+)
+
+panel <- merge(panel, firm_chars, by = "id")
+
+# observation-level variables
+panel$revenue    <- exp(rnorm(nrow(panel), mean = 10, sd = 1))   # always positive
+panel$employment <- pmax(1L, round(exp(rnorm(nrow(panel), 4, 0.8))))  # positive integer
+
+panel <- panel[order(panel$id, panel$year), ]
+
+# save as csv (or use haven::write_dta for .dta)
+write.csv(panel, "data/raw/simulated_panel.csv", row.names = FALSE)
+```
+
+### Python
+
+[Download `simulate_confidential.py`](scripts/simulate_confidential.py){.btn .btn-outline-secondary .btn-sm}
+
+```python
+import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(seed=42)
+
+n_firms = 200
+n_years = 10
+years   = range(1990, 1990 + n_years)
+
+# firm-level characteristics
+firms = pd.DataFrame({
+    "id":      np.arange(1, n_firms + 1),
+    "treated": rng.binomial(1, 0.4, n_firms),
+    "sector":  rng.integers(1, 5, n_firms),   # 1, 2, 3, or 4
+})
+
+# expand to panel
+panel = firms.loc[firms.index.repeat(n_years)].copy()
+panel["year"] = list(years) * n_firms
+panel = panel.reset_index(drop=True)
+
+# observation-level variables
+panel["revenue"]    = np.exp(rng.normal(10, 1, len(panel)))          # always positive
+panel["employment"] = np.maximum(1, rng.lognormal(4, 0.8, len(panel)).round().astype(int))
+
+panel = panel.sort_values(["id", "year"]).reset_index(drop=True)
+
+# save
+panel.to_csv("data/raw/simulated_panel.csv", index=False)
+```
+
+## Using an LLM Coding Agent {#sec-llm}
+
+If you use an LLM coding assistant (Claude, ChatGPT, Copilot, Cursor, …), you can ask it to
+write the simulation script for you. Copy the prompt below, fill in the bracketed sections
+with a description of your actual data, and paste it into your preferred tool.
+
+::: {.callout-tip}
+The simulation script does **not** need to be written in the same language as your analysis.
+Use whatever language you find most convenient — R, Python, Julia, Stata, Matlab, shell
+scripts, or anything else. All that matters is that it produces output files in the exact
+format and at the exact paths your analysis code expects to read.
+:::
+
+```
+You are helping a researcher prepare a simulated dataset for a journal reproducibility check.
+
+Task: Write a complete simulation script that generates fake versions of the confidential
+input files listed below. The fake data will be used in place of the real data so the full
+analysis pipeline can be run end-to-end by an independent Data Editor.
+
+Choose the most convenient language for this task — it does NOT need to be the same language
+as the analysis pipeline. Good choices include Python, R, Julia, Stata, or any language you
+are comfortable with. The only constraint is that the output files are saved in the exact
+format and at the exact paths that the analysis code expects to read.
+
+Requirements:
+- Same variable names and data types as the real data
+- Same number of rows (or close approximation — see below)
+- Same file format and path as the real data (e.g. a .dta file at data/raw/file.dta)
+- Respect sign and support restrictions:
+    * Always-positive variables (income, price, age) → simulate as positive (e.g. log-normal)
+    * Binary variables → simulate as 0/1
+    * Categorical variables taking values {a, b, c} → simulate within that set
+- Ensure at least one observation in every group/cell the code conditions on
+- Set random seed 42 at the top of the script for reproducibility
+
+My confidential input files:
+[LIST EACH FILE AND DESCRIBE ITS VARIABLES, e.g.:
+  File: data/raw/admin_panel.dta  (read by Stata analysis code)
+  Structure: firm-year panel, ~50,000 obs, 200 firms, 1990–2014
+  Variables:
+    - firm_id (integer, identifier)
+    - year (integer, 1990–2014)
+    - revenue (float, always positive, USD thousands)
+    - employment (integer, always >= 1)
+    - treated (binary 0/1, constant within firm)
+    - region (categorical, values 1–5)]
+
+Groups/cells my code conditions on (must all appear in simulated data):
+[LIST e.g. all 5 regions, all years, both treatment arms]
+
+Please write the complete simulation script and save output to the same path my code expects.
+```
+
+### Claude Code Skill {#sec-skill}
+
+If you use [Claude Code](https://claude.ai/code), you can install a dedicated skill that
+inspects your replication package automatically — reading your code to find every data read,
+inferring variable types and sign restrictions, and writing the simulation script for you.
+
+**To install:**
+
+1. Copy [`simulate-confidential.md`](scripts/simulate-confidential.md) into your project's
+   `.claude/commands/` folder (create it if it does not exist).
+2. From the root of your replication package, run:
+   ```
+   /simulate-confidential
+   ```
+3. Claude Code will scan your code, infer the structure of each confidential file, write the
+   simulation script to `code/simulate/simulate_confidential.<ext>` in whichever language it
+   judges most convenient, and report any variables whose type or support it could not
+   determine for your review.
+
+::: {.callout-note}
+The skill works best when your code has comments or variable labels that describe the data.
+If Claude Code flags variables it could not resolve, add a brief description of those variables
+in your `README` and re-run, or fill them in manually in the generated script.
+:::
