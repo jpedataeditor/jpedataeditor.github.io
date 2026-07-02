@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Prepare and Submit your Replication Package – JPE Data Editor</title>
+<title>Procedure for Remote Replication – JPE Data Editor</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -112,7 +147,7 @@ cookieconsent.run({
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./package.html">Preparing the Package</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Procedure for Remote Replication</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -158,7 +193,7 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./package.html" class="sidebar-item-text sidebar-link active">
+  <a href="./package.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preparing the Package</span></a>
   </div>
 </li>
@@ -196,15 +231,10 @@ cookieconsent.run({
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#sec-structure" id="toc-sec-structure" class="nav-link active" data-scroll-target="#sec-structure"><span class="header-section-number">1</span> Package Structure</a>
-  <ul class="collapse">
-  <li><a href="#some-examples" id="toc-some-examples" class="nav-link" data-scroll-target="#some-examples"><span class="header-section-number">1.1</span> Some Examples</a></li>
-  </ul></li>
-  <li><a href="#contents-of-replication-package" id="toc-contents-of-replication-package" class="nav-link" data-scroll-target="#contents-of-replication-package"><span class="header-section-number">2</span> Contents of Replication Package</a></li>
-  <li><a href="#sec-package-readme" id="toc-sec-package-readme" class="nav-link" data-scroll-target="#sec-package-readme"><span class="header-section-number">3</span> The <code>README</code> File</a></li>
-  <li><a href="#data-citations" id="toc-data-citations" class="nav-link" data-scroll-target="#data-citations"><span class="header-section-number">4</span> Data Citations</a></li>
-  <li><a href="#submitting-your-package" id="toc-submitting-your-package" class="nav-link" data-scroll-target="#submitting-your-package"><span class="header-section-number">5</span> Submitting Your Package</a></li>
-  <li><a href="#after-the-reproducibility-checks-are-completed-publish-your-package" id="toc-after-the-reproducibility-checks-are-completed-publish-your-package" class="nav-link" data-scroll-target="#after-the-reproducibility-checks-are-completed-publish-your-package"><span class="header-section-number">6</span> After the reproducibility checks are completed: publish your package!</a></li>
+  <li><a href="#purpose" id="toc-purpose" class="nav-link active" data-scroll-target="#purpose"><span class="header-section-number">1</span> Purpose</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">2</span> Setup</a></li>
+  <li><a href="#before-the-replication-attempt" id="toc-before-the-replication-attempt" class="nav-link" data-scroll-target="#before-the-replication-attempt"><span class="header-section-number">3</span> Before the replication attempt</a></li>
+  <li><a href="#performing-the-remote-replication" id="toc-performing-the-remote-replication" class="nav-link" data-scroll-target="#performing-the-remote-replication"><span class="header-section-number">4</span> Performing the remote replication</a></li>
   </ul>
 </nav>
     </div>
@@ -213,7 +243,7 @@ cookieconsent.run({
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Prepare and Submit your Replication Package</h1>
+<h1 class="title">Procedure for Remote Replication</h1>
 </div>
 
 
@@ -230,172 +260,105 @@ cookieconsent.run({
 </header>
 
 
-<section id="sec-structure" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="sec-structure"><span class="header-section-number">1</span> Package Structure</h2>
-<p>Your package should be submitted as a single <code>zip</code> file. While we do not enforce any particular structure for the contents of this archive, we ask you to observe a few simple rules for operational reasons:</p>
-<ol type="1">
-<li>At the root of your package, there <strong>must</strong> be a <code>README</code> file in suitable format (<code>.txt</code>, <code>.md</code> or <code>.pdf</code>). We do not accept supplementary <code>README</code> files in other locations of the package - There should be a unique point for all required documentation.</li>
-<li>You should clearly separate input, output and code in your package.</li>
-<li>If your package depends on confidential data which you can share only on a temporary basis with the Data Editor, clearly separate this from the public data in your package in order to avoid mistaken publication of such data. We recommend to call this folder <code>confidential-data-not-for-publication</code>.</li>
-<li>If the content of your package is larger than 10GB, zip compression becomes unstable. Please reach out to the Data Editor to agree on a way of splitting the content across multiple compressed files. In general, we aim for the smallest possible number of zip files below a 10GB threshold.</li>
-</ol>
-<section id="some-examples" class="level3" data-number="1.1">
-<h3 data-number="1.1" class="anchored" data-anchor-id="some-examples"><span class="header-section-number">1.1</span> Some Examples</h3>
-<p>Here are three examples for potential package structures. <em>This is what we see after we <code>unzip</code> your package</em>.</p>
-<div class="columns">
-<div class="column" style="width:33%;">
-<p><strong>Example 1 ✅</strong></p>
-<pre><code>.
-├── README.md
-├── code
-│&nbsp;&nbsp; ├── R
-│&nbsp;&nbsp; │&nbsp;&nbsp; ├── 0-install.R
-│&nbsp;&nbsp; │&nbsp;&nbsp; ├── 1-main.R
-│&nbsp;&nbsp; │&nbsp;&nbsp; ├── 2-figure2.R
-│&nbsp;&nbsp; │&nbsp;&nbsp; └── 3-table2.R
-│&nbsp;&nbsp; ├── stata
-│&nbsp;&nbsp; │&nbsp;&nbsp; ├── 1-main.do
-│&nbsp;&nbsp; │&nbsp;&nbsp; ├── 2-read_raw.do
-│&nbsp;&nbsp; │&nbsp;&nbsp; ├── 3-figure1.do
-│&nbsp;&nbsp; │&nbsp;&nbsp; ├── 4-figure2.do
-│&nbsp;&nbsp; │&nbsp;&nbsp; └── 5-table1.do
-│&nbsp;&nbsp; └── tex
-│&nbsp;&nbsp;     ├── appendix.tex
-│&nbsp;&nbsp;     └── main.tex
-├── data
-│&nbsp;&nbsp; ├── processed
-│&nbsp;&nbsp; └── raw
-└── output
-    ├── plots
-    └── tables</code></pre>
-</div><div class="column" style="width:33%;">
-<p><strong>Example 2 ✅</strong></p>
-<pre><code>.
-├── README.pdf
-├── code
-│&nbsp;&nbsp; ├── R
-│&nbsp;&nbsp; └── fortran
-├── data
-│&nbsp;&nbsp; ├── processed
-│&nbsp;&nbsp; └── raw
-├── confidential-data-not-for-publication
-│&nbsp;&nbsp; ├── processed
-│&nbsp;&nbsp; └── raw
-└── output</code></pre>
-<p><code>confidential-data-not-for-publication</code> is for Data Editor only.</p>
-</div><div class="column" style="width:33%;">
-<p><strong>Example 3 ❌</strong></p>
-<pre><code>.
-├── README.docx
-├── 20211107ext_2v1.do
-├── 20220120ext_2v1.do
-├── 20221101wave1.dta
-├── matlab_fortran
-│&nbsp;&nbsp; ├── graphs
-│&nbsp;&nbsp; ├── sensitivity1
-│&nbsp;&nbsp; │&nbsp;&nbsp; ├── data.xlsx
-│&nbsp;&nbsp; │&nbsp;&nbsp; ├── good_version.do
-│&nbsp;&nbsp; │&nbsp;&nbsp; └── script.m
-│&nbsp;&nbsp; └── sensitivity2
-│&nbsp;&nbsp;     ├── models.f90
-│&nbsp;&nbsp;     ├── models.mod
-│&nbsp;&nbsp;     └── nrtype.f90
-├── readme.do
-├── scatter1.eps
-├── scatter1_1.pdf
-├── scatter1_2.pdf
-├── ts.eps
-├── wave1.dta
-├── wave2.dta
-├── wave2regs.dta
-└── wave2regs2.dta</code></pre>
-<p>The Data Editor would ask you to improve the structure of this package: First, the readme is in the wrong format, second, input, output and code are mixed.</p>
+<section id="purpose" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="purpose"><span class="header-section-number">1</span> Purpose</h2>
+<p>In cases where confidential data cannot be shared with the Data Editor, we try to get access to an author’s screen and observe the reproduction of results on their machine. This is often within authors’ confidentiality agreements with data providers, because the data do not leave the author’s machine, and the replicator is specifically instructed not to examine individual records of data, which may contain personally identifying information, or other sensitive information. Instead, the replicator attempts to execute the full reproduction pipeline, and to collect generated results in the end.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Legal
 </div>
 </div>
-<p>Keep in mind that you can only include folder <code>confidential-data-not-for-publication</code>, if you have previously applied for exemption to the Data and Code Policy. There are relevant FAQs <a href="./before.html#apply-to-exemptions-to-the-data-and-code-availability-policy">here</a>, <a href="./faqs.html#data-and-code-availability-policy-and-exemptions">here</a>, and <a href="./faqs.html#procedures-when-exemptions-are-granted">here</a>.</p>
+<div class="callout-body-container callout-body">
+<p>It is the author’s responsibility to verify that the legal conditions for this approach are met. Ask your data provider, if applicable.</p>
+</div>
+</div>
 </section>
-</section>
-<section id="contents-of-replication-package" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="contents-of-replication-package"><span class="header-section-number">2</span> Contents of Replication Package</h2>
-<p>As indicated in the journal’s <a href="https://www.journals.uchicago.edu/journals/jpe/datapolicy">Data and Code Availability Policy</a> all packages should include the following material:</p>
-<ul>
-<li>A <code>README</code> file in PDF format (<code>README.pdf</code>). We strongly recommend using <a href="https://social-science-data-editors.github.io/template_README/">this template</a>. You may find in <a href="https://www.templatereadme.org/">this web app</a> a convenient tool to create your <code>README</code> file. The minimally required content of the readme is specified <a href="./policy.html#sec-readme">here</a>. A comprehensive list is given below in <a href="#sec-package-readme" class="quarto-xref">Section&nbsp;3</a>.</li>
-<li>The <strong>raw datasets</strong> used in the paper and online appendices, including a complete, transparent and precise documentation describing all variables. You can additionally provide the analysis data if this is helpful, but they are not required if the raw data are provided.</li>
-<li>If you were granted a data exemption at the time of first submission (see <a href="./before.html#apply-to-exemptions-to-the-data-and-code-availability-policy">here</a>, <a href="./faqs.html#data-and-code-availability-policy-and-exemptions">here</a>, and <a href="./faqs.html#procedures-when-exemptions-are-granted">here</a> for details), you should either provide the replication team with <strong>temporary access</strong> to the data for the sole purpose of performing the reproducibility checks, or you should submit a <strong>synthetic/simulated</strong> dataset that allows running the code and produce all outputs in the paper and appendices, even if the results do not match those in the paper (see <a href="./confidential.html">detailed instructions for preparing simulated data</a>). If you can provide temporary access but you cannot share the data in the <code>confidential-data-not-for-publication</code> folder, please contact the Data Editor at jpe.dataeditor@gmail.com to arrange an alternative access method (e.g.&nbsp;we can <a href="./remote-protocol.html">access your screen remotely</a>). The content of this folder will be destroyed after the reproducibility checks are completed. All replicators and the Data Editor have signed confidentiality agreements that protect your submission.</li>
-<li>Both the data cleaning codes and the analysis codes that produce all reproducible outputs reported in the article, appendix, and online appendices (including figures, tables, and numbers reported in the text). If some results are produced without scripts (e.g.&nbsp;ArcGIS maps), the <code>README</code> file should include step-by-step <em>very detailed instructions</em> on how to produce that output. In case of simulation/Monte Carlo studies, the authors are requested to set a seed so that the exact numbers that are reported can be obtained.</li>
-<li>If data are provided in proprietary format (e.g.&nbsp;Stata’s <code>.dta</code>), a copy of the data in non-proprietary format (e.g.&nbsp;<code>ASCII</code>, <code>.csv</code>).</li>
-</ul>
-<p><strong>Experimental papers</strong> should additionally include the following PDF documents (if these files are part of the paper or of an appendix, copy them again in a separate document and include them in the replication package):</p>
-<ol type="1">
-<li>A document outlining the <strong>design</strong> of the experiment.</li>
-<li>A copy of the <strong>instructions</strong> given to participants, in both the original language and an English translation.</li>
-<li>Information on the <strong>selection and eligibility</strong> of participants.</li>
-<li>A PDF copy of the <strong>Institutional Review Board (IRB) approval</strong> of one of the authors’ institutions (IRB approval number, date, name of the institution) or an explicit mention that an exemption has been granted by the Editorial Board.</li>
-</ol>
-</section>
-<section id="sec-package-readme" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="sec-package-readme"><span class="header-section-number">3</span> The <code>README</code> File</h2>
-<p>The <code>README</code> file should provide enough instructions so that all users (level of an advanced PhD student and above) can reproduce all the results in the paper in a reasonable amount of time and without problems. We strongly recommend using <a href="https://social-science-data-editors.github.io/template_README/">this template</a>. You may find in <a href="https://www.templatereadme.org/">this web app</a> a convenient tool to create your <code>README</code> file. The <strong>minimum required information includes</strong>:</p>
-<ol type="1">
-<li>A <strong>verbal description</strong> of the content of the package (datasets, programs, folders, etc.)</li>
-<li><strong>Data Availability Statement</strong>: precise indications on how the data were obtained, including required registrations, memberships, application procedures, monetary cost, or other qualifications, and, if applicable, URL to download them (which is typically part of the data citation).</li>
-<li>The following <strong>Statement about Rights</strong>:
-<ul class="task-list">
-<li><label><input type="checkbox">I certify that the author(s) of the manuscript have legitimate access to and permission to use the data used in this manuscript.</label></li>
-<li><label><input type="checkbox">I certify that the author(s) of the manuscript have documented permission to redistribute/publish the data contained within this replication package. Appropriate permission are documented in the LICENSE.txt file (if applicable).</label></li>
-</ul></li>
-<li>Precise <strong>instructions</strong> on how to run the code.</li>
-<li>Indications on where each piece of output is saved or displayed.</li>
-<li><strong>Software requirements</strong>, including the software version and operating system used by the authors.</li>
-<li>All <strong>packages and libraries</strong> that need to be installed to run the code and a clear indication on how to obtain them.</li>
-<li><strong>Expected running time</strong> (even if it is a few seconds). When relevant, include the hardware that the estimated time refers to.</li>
-<li><strong>Data citations</strong>: all datasets used in the paper (with no exceptions) should be listed in the references section of the paper in the same way that we cite other papers, and a copy of these citations should appear in a dedicated section of the ReadMe file. You can find some examples <a href="https://social-science-data-editors.github.io/guidance/addtl-data-citation-guidance.html">here</a>.</li>
-</ol>
-</section>
-<section id="data-citations" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="data-citations"><span class="header-section-number">4</span> Data Citations</h2>
-<p>All datasets used in the paper (with no exceptions) should be listed <em>in the references section of the paper</em> in the same way that we cite other papers, and a copy of these citations should appear in a dedicated section of the <code>README</code> file.</p>
-<p>If the data used in the study is part of the replication package of another paper, both the paper and the replication package should be cited.</p>
+<section id="setup" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="setup"><span class="header-section-number">2</span> Setup</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Data Citations Are Important!
+<span class="screen-reader-only">Note</span>Roles
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Even commonly used datasets should be cited (in fact, funding of public and private institutions that make datasets available, even the most widely used ones, crucially depends on data citations!).</p>
+<ul>
+<li><code>A</code>: Author</li>
+<li><code>Rep</code>: Replicator</li>
+</ul>
 </div>
 </div>
-<p>More specific guidance, and examples, on data citations is available <a href="https://social-science-data-editors.github.io/guidance/addtl-data-citation-guidance.html">here</a>.</p>
-</section>
-<section id="submitting-your-package" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="submitting-your-package"><span class="header-section-number">5</span> Submitting Your Package</h2>
-<p>You will be <em>invited</em> to submit your package via an upload link by the Data Editor. This invitation will be generated <em>after</em> you have submitted the electronic form in your conditional acceptance email.</p>
-<p>A few days after you submitted the package (in most of the cases, within two weeks) you will be contacted by the Data Editor with the outcome of the reproducibility checks, regardless of whether the checks were successful or there are modifications to be made. <strong>Please add jpe.dataeditor@gmail.com and to your safe contacts to avoid that the Data Editor’s messages go to spam!</strong></p>
-<p>If you need to implement modifications of your package, you will be instructed to do so in the Data Editor’s response. You will iterate with the Data Editor until the reproducibility checks are satisfactorily concluded.</p>
-</section>
-<section id="after-the-reproducibility-checks-are-completed-publish-your-package" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="after-the-reproducibility-checks-are-completed-publish-your-package"><span class="header-section-number">6</span> After the reproducibility checks are completed: publish your package!</h2>
-<p>Once the reproducibility checks are concluded, and upon invitation of the Data Editor, you will be requested to perform a final step: publish your replication package at the <a href="https://dataverse.harvard.edu/dataverse/JPE">JPE Dataverse</a>. To do so, you need to perform the following steps:</p>
-<div class="extrapad">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Software
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We generically refer to <em>zoom</em> as the required tool, however, any online meeting platform with screen sharing and remote control capability (cisco webex, microsoft teams, etc) work equally well. NOTE: if using Microsoft Teams, remote control does not work when either party joins via the browser (web) client instead of the desktop app - make sure both <code>A</code> and <code>Rep</code> use the Teams desktop app.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>File Paths and Locations
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <ol type="1">
-<li>Sign up <a href="https://dataverse.harvard.edu/dataverse/JPE">here</a> for a free account, if you don’t have one already.</li>
-<li>Log in to your account.</li>
-<li>Make sure you are on the <a href="https://dataverse.harvard.edu/dataverse/JPE">JPE Dataverse</a> and not the generic dataverse (you need to see the JPE green banner on top). Click on <em>Add Data &gt; New Dataset</em>. <img src="img/dv1.png" class="img-fluid"></li>
-<li>Fill in all required but <strong>do not add any data</strong> at this step. Instead, click on <em>Save Dataset</em>. <img src="img/dv2.png" class="img-fluid"></li>
-<li>Your deposit will be created. Now you can select <em>Upload Files</em>. <img src="img/dv3.png" class="img-fluid"></li>
-<li>On the resulting screen, it is <strong>compulsory</strong> to select the <em>Upload a Folder</em> button and to upload <strong>in uncompressed format</strong> the <em>exact same package</em> which the Data Editor sign off on (again, only difference is that your package is not compressed here). The correspondence between uploaded and accepted package will be checked automatically. Uploading files is limited to less than 1000 files per upload, a maximum file size of 9.3BG per file, and a total transfer time per upload of less than 60 minutes. You can perform multiple uploads. If you experience issues with this, please contact the data editor! <img src="img/dv4.png" class="img-fluid"></li>
-<li>⚠️ <strong>Do not include the content of the <code>confidential-data-not-for-publication</code> folder</strong>!</li>
-<li>After the folder upload has finished, reload the dataverse page of your deposit. Check your files are visible at the bottom.</li>
-<li>Fill in <em>the required metadata</em>! Click on the <em>metadata</em> tab, then on <em>edit/add metdata</em> on the right. <img src="img/dv8.png" class="img-fluid"></li>
-<li>Everything in <em>red</em> below needs to be filled out. <img src="img/dv6.png" class="img-fluid"> <img src="img/dv7.png" class="img-fluid"></li>
-<li>Finally, Click on <em>Submit for Review</em>. <img src="img/dv5.png" class="img-fluid"></li>
-<li>After verification of your deposit by the Data Editor, your package will be published on the JPE dataverse, and the process of reproducibility checks comes to an end.</li>
+<li>Folder <code>confidential-data-dont-publish</code>: present on <code>A</code>’s machine only.</li>
+<li><code>JPE-dropbox</code>: replication package preprocessed by Data Editor and shared with the replicator. Contains code, documentation, and public data.</li>
+<li><code>JPE-upload-link</code>: URL shared by the data editor in email to <code>A</code> and <code>Rep</code>. <code>Rep</code> will upload results and session recording this location.</li>
 </ol>
 </div>
+</div>
+</section>
+<section id="before-the-replication-attempt" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="before-the-replication-attempt"><span class="header-section-number">3</span> Before the replication attempt</h2>
+<ul>
+<li>Figure out who has a paid zoom subscription - that person should initiate the call.</li>
+<li>Organize a suitable time slot for all participants, and communicate which OS will be running on the author’s machine.</li>
+<li>Always copy the data editor in all communications.</li>
+<li>By default, <code>Rep</code> records the screen session and places it in <code>JPE-upload-link</code> when done. Exception: if data provider imposes legal impediments to recording (e.g.&nbsp;confidential/restricted data terms), <code>Rep</code> does not record.</li>
+</ul>
+</section>
+<section id="performing-the-remote-replication" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="performing-the-remote-replication"><span class="header-section-number">4</span> Performing the remote replication</h2>
+<ol type="1">
+<li><p><code>A</code> provides a workstation/laptop which can run uninterrupted for the full duration of the computational job. <code>A</code> makes sure that the workstation/laptop has a recent version of the Zoom desktop app, and that the screen timeout exceeds the running time of the code.</p></li>
+<li><p><code>A</code> starts zoom and a single instance of the needed software (stata, R, matlab, whatever is needed), no other programs should run.</p></li>
+<li><p><code>Rep</code> receives a zoom invite and connects.</p></li>
+<li><p><code>Rep</code> starts recording of session.</p></li>
+<li><p><code>A</code> grants remote control of their screen to <code>Rep</code> and takes their hands off the keyboard, see <a href="https://support.zoom.com/hc/en/article?id=zm_kb&amp;sysparm_article=KB0065790">zoom instructions here</a>. NOTE: This appears to require that <code>A</code> first shares screen and then grants access, or <code>Rep</code> requests access.</p></li>
+<li><p><code>Rep</code> <em>imports the replication package from <code>JPE-Dropbox</code></em> - DO NOT USE THE CODE ON THE AUTHOR’S MACHINE. Notice that copy-paste does not work reliably on zoom remote control, so we ask for <code>A</code>’s help in downloading the package from our dropbox while <code>Rep</code> is watching.</p></li>
+<li><p><code>A</code> copies confidential data into just downloaded JPE Replication package, at the correct location. For instance, a folder <code>confidential-data-dont-publish</code>, which is referenced in the package code.</p></li>
+<li><p><code>Rep</code> takes control of <code>A</code>’s keyboard.</p></li>
+<li><p><code>Rep</code> follows instructions in the package <code>README</code> and hopefully is able to launch the job. <code>A</code> is kindly requested not to interfere at this step, as the point of the exercise is to make sure that an independent researcher can understand the instructions.</p></li>
+<li><p><code>Rep</code> takes note of the process IDs of whatever software is running - looking for e.g.&nbsp;“Stata” following <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/finding-the-process-id">this</a> on Windows. On mac, use Activity Monitor, or in Terminal:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ps</span> aux <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> stata</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Sample output:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">USER</span>    PID  %CPU %MEM      VSZ    RSS   TT  STAT STARTED      TIME COMMAND</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flo</span>    4231   0.3  1.2  412345  98765   <span class="pp">??</span>  S     3:15PM   0:02.14 /Applications/Stata/StataSE.app/Contents/MacOS/StataSE</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The number to note is the <code>PID</code> column (here: <code>4231</code>) - the second column here.</p></li>
+<li><p>If we hit an error within 60 minutes, we stop, <code>Rep</code> writes the report, and we go into another round.</p></li>
+<li><p>If not, <code>Rep</code> stops recording, disconnects zoom and lets it run for the required amount of time.</p></li>
+<li><p>Once done, <code>A</code> sends a zoom link to <code>Rep</code>, who connects back.</p></li>
+<li><p><code>Rep</code> checks that the PID of the executing program(s) is/are still the same.</p></li>
+<li><p><code>Rep</code> checks that the files in the output folder have been created during the time in which the code was running (i.e.&nbsp;check file creation time), and uploads the output to <code>JPE-upload-link</code>.</p></li>
+</ol>
 
 
 </section>
@@ -474,7 +437,7 @@ cookieconsent.run({
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("git@github-jpe:jpedataeditor\/jpedataeditor\.github\.io\.git");
+        var filterRegex = new RegExp('/' + window.location.host + '/');
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
