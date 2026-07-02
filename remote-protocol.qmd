@@ -1,0 +1,87 @@
+---
+title: "Procedure for Remote Replication"
+number-sections: true
+---
+
+## Purpose
+
+In cases where the full confidential data cannot be shared physically with the Data Editor, we try to get access to an author's screen and observe the reproduction of results on their machine. This may lie within the limits of authors' confidentiality agreements with data providers, because the data do not leave the author's machine, and the replicator is specifically instructed not to examine individual records of data, which may contain personally identifying information, or other sensitive information. Instead, the replicator attempts to execute the full reproduction pipeline, and to collect generated results in the end. 
+
+::: {.callout-warning}
+
+# Legal
+
+It is the author's responsibility to verify that the legal conditions for this approach are met. Ask your data provider, if applicable.
+
+:::
+
+## Setup
+
+
+::: {.callout-note}
+
+# Roles
+
+* `A`: Author
+* `Rep`: Replicator
+
+:::
+
+
+::: {.callout-note}
+
+# Software
+
+We generically refer to _zoom_ as the required tool, however, any online meeting platform with screen sharing and remote control capability (cisco webex, microsoft teams, etc) work equally well. NOTE: if using Microsoft Teams, remote control does not work when either party joins via the browser (web) client instead of the desktop app - make sure both `A` and `Rep` use the Teams desktop app.
+
+:::
+
+::: {.callout-note}
+
+# File Paths and Locations
+
+1. Folder `confidential-data-dont-publish`: present on `A`'s machine only.
+2. `JPE-dropbox`: replication package preprocessed by Data Editor and shared with the replicator. Contains code, documentation, and public data.
+3. `JPE-upload-link`: URL shared by the data editor in email to `A` and `Rep`. `Rep` will upload results and session recording this location.
+
+:::
+
+
+## Before the replication attempt
+
+* Figure out who has a paid zoom subscription - that person should initiate the call.
+* Organize a suitable time slot for all participants, and communicate which OS will be running on the author's machine.
+* Always copy the data editor in all communications.
+* By default, `Rep` records the screen session and places it in  `JPE-upload-link` when done. Exception: if data provider imposes legal impediments to recording (e.g. confidential/restricted data terms), `Rep` does not record.
+
+## Performing the remote replication
+
+1. `A` provides a workstation/laptop which can run uninterrupted for the full duration of the computational job. `A` makes sure that the workstation/laptop has a recent version of the Zoom desktop app, and that the screen timeout exceeds the running time of the code.
+2. `A` starts zoom and a single instance of the needed software (stata, R, matlab, whatever is needed), no other programs should run.
+3. `Rep` receives a zoom invite and connects.
+4. `Rep` starts recording of session.
+5. `A` grants remote control of their screen to `Rep` and takes their hands off the keyboard, see [zoom instructions here](https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0065790). NOTE: This appears to require that `A` first shares screen and then grants access, or `Rep` requests access.
+6. `Rep` *imports the replication package from `JPE-Dropbox`* - DO NOT USE THE CODE ON THE AUTHOR'S MACHINE. Notice that copy-paste does not work reliably on zoom remote control, so we ask for `A`'s help in downloading the package from our dropbox while `Rep` is watching.
+7. `A` copies confidential data into just downloaded JPE Replication package, at the correct location. For instance, a folder `confidential-data-dont-publish`, which is referenced in the package code.
+8. `Rep` takes control of `A`'s keyboard.
+9. `Rep` follows instructions in the package `README` and hopefully is able to launch the job. `A` is kindly requested not to interfere at this step, as the point of the exercise is to make sure that an independent researcher can understand the instructions. 
+10. `Rep` takes note of the process IDs of whatever software is running - looking for e.g. "Stata" following [this](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/finding-the-process-id) on Windows. On mac, use Activity Monitor, or in Terminal:
+    
+    ```sh
+    ps aux | grep -i stata
+    ```
+
+    Sample output:
+
+    ```sh
+    USER    PID  %CPU %MEM      VSZ    RSS   TT  STAT STARTED      TIME COMMAND
+    flo    4231   0.3  1.2  412345  98765   ??  S     3:15PM   0:02.14 /Applications/Stata/StataSE.app/Contents/MacOS/StataSE
+    ```
+
+    The number to note is the `PID` column (here: `4231`) - the second column here.
+
+11. If we hit an error within 60 minutes, we stop, `Rep` writes the report, and we go into another round.
+12. If not, `Rep` stops recording, disconnects zoom and lets it run for the required amount of time.
+13. Once done, `A` sends a zoom link to `Rep`, who connects back.
+14. `Rep` checks that the PID of the executing program(s) is/are still the same.
+15. `Rep` checks that the files in the output folder have been created during the time in which the code was running (i.e. check file creation time), and uploads the output to `JPE-upload-link`.
