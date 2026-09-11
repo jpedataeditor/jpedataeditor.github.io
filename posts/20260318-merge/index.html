@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Florian Oswald">
-<meta name="dcterms.date" content="2026-09-10">
+<meta name="dcterms.date" content="2026-03-18">
 <meta name="description" content="A visual guide to inner joins, outer joins, and why merge m:m is almost never what you want">
 
 <title>Merges and Joins: From SQL to Stata – JPE Data Editor</title>
@@ -198,7 +198,7 @@ cookieconsent.run({
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">September 10, 2026</p>
+        <p class="date">March 18, 2026</p>
       </div>
     </div>
     
@@ -1534,7 +1534,17 @@ Tip
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@misc{oswald2026,
+  author = {Oswald, Florian},
+  title = {Merges and {Joins:} {From} {SQL} to {Stata}},
+  date = {2026-03-18},
+  url = {https://jpedataeditor.github.io/posts/20260318-merge/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-oswald2026" class="csl-entry quarto-appendix-citeas" role="listitem">
+Oswald, Florian. 2026. <span>“Merges and Joins: From SQL to
+Stata.”</span> <em>JPE Data Editor Blog</em> (blog). March 18, 2026. <a href="https://jpedataeditor.github.io/posts/20260318-merge/">https://jpedataeditor.github.io/posts/20260318-merge/</a>.
+</div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -1608,7 +1618,7 @@ Tip
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("git@github-jpe:jpedataeditor\/jpedataeditor\.github\.io\.git");
+        var filterRegex = new RegExp("https:\/\/jpedataeditor\.github\.io");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1935,6 +1945,35 @@ Tip
     }
   });
   </script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+<script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "jpedataeditor/jpedataeditor.github.io";
+    script.dataset.repoId = "R_kgDOOhUDZw";
+    script.dataset.category = "General";
+    script.dataset.categoryId = "DIC_kwDOOhUDZ84DFYEx";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "bottom";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "en";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
