@@ -3,6 +3,7 @@ project:
 
 website:
   title: "JPE Data Editor"
+  site-url: https://jpedataeditor.github.io
   favicon: img/jpeicon.png
   repo-url: https://github.com/jpedataeditor/jpedataeditor.github.io
   page-footer: 

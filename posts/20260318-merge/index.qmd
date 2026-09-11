@@ -7,7 +7,7 @@ author:
     orcid: 0000-0001-7737-2038
     affiliation: Collegio Carlo Alberto, UniTo, JPE Data Editor
     affiliation-url: https://jpedataeditor.github.io/ 
-date: today
+date: 2026-03-18
 date-format: long
 categories: [STATA, R] # self-defined categories
 image: right.png

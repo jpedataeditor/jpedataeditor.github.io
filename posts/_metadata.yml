@@ -5,3 +5,17 @@ freeze: auto
 
 # enable banner style title blocks (see https://quarto.org/docs/authoring/title-blocks.html)
 title-block-banner: true
+
+comments:
+  giscus:
+    repo: jpedataeditor/jpedataeditor.github.io
+    repo-id: R_kgDOOhUDZw
+    category: General
+    category-id: DIC_kwDOOhUDZ84DFYEx
+    mapping: pathname
+    reactions-enabled: true
+    input-position: bottom
+
+citation:
+  type: post-weblog
+  container-title: "JPE Data Editor Blog"
