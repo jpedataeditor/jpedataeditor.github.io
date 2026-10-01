@@ -12,10 +12,8 @@ date-format: long
 categories: [reproducibility, RAM, MATLAB, STATA, R]
 draft: false
 number-sections: true
-execute:
-  echo: true
-  warning: false
-  message: false
+image: OOM.png
+
 ---
 
 A recurring pattern in our reproducibility checks: a replication package runs fine on the author's workstation, and then stalls, swaps for hours, or gets silently killed on the replicator's machine. Almost always, the root cause is the same - the package needs more RAM than the author ever measured, and the README either says nothing about memory, or is just a rough guess ("my computer has 256GB of RAM") instead of a precise number.
