@@ -1,0 +1,300 @@
+---
+title: "How Much RAM Does Your Replication Package Actually Need?"
+description: "Why a measured RAM number belongs in your README, the usual causes of high memory use, and how to measure peak and time-series RAM on macOS, Linux and Windows for MATLAB, Stata and R."
+author:
+  - name: Florian Oswald
+    url: https://floswald.github.io/
+    orcid: 0000-0001-7737-2038
+    affiliation: JPE Data Editor
+    affiliation-url: https://jpedataeditor.github.io/
+date: 2026-10-01
+date-format: long
+categories: [reproducibility, RAM, MATLAB, STATA, R]
+draft: false
+number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+A recurring pattern in our reproducibility checks: a replication package runs fine on the author's workstation, and then stalls, swaps for hours, or gets silently killed on the replicator's machine. Almost always, the root cause is the same - the package needs more RAM than the author ever measured, and the README either says nothing about memory, or repeats a rough guess ("needs a lot of RAM, we used a server") instead of a number.
+
+This post is for authors who want to get this right the first time: why it matters, what usually causes it, and how to actually measure it - on macOS, Linux, and Windows, for MATLAB, Stata, and R.
+
+## Why a precise RAM estimate matters {#sec-why}
+
+If your code needs more RAM than the replicator's machine physically has, the replication attempt simply cannot proceed - no amount of patience fixes a hard resource ceiling. Two things make this worse than it sounds at first:
+
+- **Swap is not a safety net you can count on.** Some systems let a process exceed physical RAM by paging to disk ("swap"), at a steep performance cost - a run that takes two hours in RAM can take two days once it starts swapping. But this isn't universal: many HPC clusters and container environments either disable swap entirely or enforce a hard memory limit per job.
+- **Some systems kill the process outright.** Linux's OOM (out-of-memory) killer, Slurm/PBS job schedulers, and Docker's memory limits will terminate a process that asks for more than it's allowed, often with a terse `Killed` and no helpful error message. A replicator who doesn't know your code needs 260 GB has no way to anticipate this, let alone request the right machine.
+
+A measured number lets a replicator (or a future reader attempting to reproduce your work) decide *before* they start whether their hardware is even adequate, and if not, what to provision (a bigger cloud instance, a university HPC allocation, etc.). A guess doesn't let them do that - it just costs them a failed run to find out.
+
+## Common patterns behind high RAM usage {#sec-patterns}
+
+Underneath almost every "this needs way more RAM than I expected" case is some form of **allocation of data you don't need all at once**. The usual culprits:
+
+- **Loading a large dataset wholesale.** Reading an entire panel, a full set of administrative microdata, or a large raw text file into memory with a single `read.csv`/`import delimited`/`readtable` call, when the actual computation only ever touches it in chunks (by year, by firm, by block).
+- **Large intermediate arrays.** Model solution code that builds dense state-space grids, value function arrays, or transition matrices that are much larger than the final output - especially once you add dimensions (more state variables, finer grids, more types/sectors). This is exactly the pattern behind the entrepreneur-vs-baseline gap in @sec-readme below: one extra state dimension inflates the grid, and RAM with it.
+- **Parallel workers multiplying memory, not dividing it.** `parpool`, Stata's `parallel`, R's `future`/`furrr`/`parallel` - each worker is typically a *separate process* with its own copy of the data and intermediate objects. Ten workers can mean roughly ten times the memory of one, not the same memory spread over ten cores. (Thread-based parallelism, e.g. MATLAB's `parpool("Threads", N)`, shares memory across threads instead and avoids this multiplication - worth knowing about when you're choosing how to parallelize.)
+- **Accumulating results instead of streaming them.** Appending every simulation draw, every bootstrap replicate, or every panel-year to a growing in-memory object instead of writing each piece to disk as it's produced and discarding it from memory.
+- **Copies you didn't ask for.** Both R and MATLAB can silently copy-on-modify large objects inside functions or loops; a chain of data transformations can briefly hold several full copies of the same large object at once, well before the final result ever exists.
+
+None of these are wrong things to do - a dense value function array is often the right data structure, and `parpool` is often the right way to speed up a solve. The point is just that each of these choices has a direct, and sometimes surprising, RAM cost, and that cost is worth *measuring* rather than assuming.
+
+## How to measure it {#sec-measure}
+
+Two numbers are worth reporting, and they answer different questions:
+
+1. **Peak RAM for the whole run** - a single number, the maximum any process reached. This is what determines whether the job fits on a given machine at all.
+2. **RAM over time** - a trace showing memory climbing and falling over the course of the run. This tells you *where* the peak happens (loading the raw panel? solving the model? the forecast-error regressions after simulation?), which matters if you want to reduce it later, or just want to tell a replicator which step to watch.
+
+A general-purpose, cross-platform way to get both at once is [`psrecord`](https://github.com/astrofrog/psrecord) (`pip install psrecord`), which samples a running process's memory on a timer and can write both a log and a plot:
+
+```bash
+psrecord <PID> --interval 5 --log mem.txt --plot mem.png --include-children
+```
+
+The `--include-children` flag matters a lot in practice: if your code spawns worker processes (a `parpool` with the `"Processes"` backend, R's `future`/`parallel` workers), those workers' memory does **not** count toward the parent PID's own usage by default, and you will silently under-measure the real peak. Always include it unless you've specifically confirmed your code stays single-process.
+
+Below are the native, no-extra-install alternatives for each platform, with the launch command and the process name to look for in MATLAB, Stata, and R. All three share the same two-step logic: find the PID, then either ask the OS for its peak directly, or poll it over time.
+
+::: {.callout-note}
+### A note on Stata and `PATH`
+
+The Stata examples below assume a `stata-mp` (or `stata-se`/`stata-ic`) command is available on your shell's `PATH`, which lets you run `stata-mp -b do myscript.do` from any terminal. This is often **not** the case out of the box, especially on macOS. See @sec-stata-path if the command isn't found.
+:::
+
+### Measuring on macOS {#sec-macos}
+
+For peak RAM of the whole process, `/usr/bin/time -l` reports a `maximum resident set size` in bytes at the end of the run - this works cleanly even with thread-based parallelism, since threads share one process.
+
+::: {.panel-tabset}
+### MATLAB
+
+```bash
+# peak RAM for the whole run
+/usr/bin/time -l matlab -batch "run('myscript.m')" 2>&1 | tee run.log
+# -> look for "maximum resident set size" near the bottom of run.log
+
+# RAM over time: find the PID, then poll it
+PID=$(pgrep -n MATLAB)
+while kill -0 "$PID" 2>/dev/null; do
+  echo "$(date +%s) $(ps -o rss= -p "$PID")"
+  sleep 5
+done > mem_trace.log
+```
+
+### Stata
+
+```bash
+# peak RAM for the whole run
+/usr/bin/time -l stata-mp -b do myscript.do 2>&1 | tee run.log
+# -> look for "maximum resident set size" near the bottom of run.log
+
+# RAM over time: find the PID, then poll it
+PID=$(pgrep -n stata-mp)
+while kill -0 "$PID" 2>/dev/null; do
+  echo "$(date +%s) $(ps -o rss= -p "$PID")"
+  sleep 5
+done > mem_trace.log
+```
+
+### R
+
+```bash
+# peak RAM for the whole run
+/usr/bin/time -l Rscript myscript.R 2>&1 | tee run.log
+# -> look for "maximum resident set size" near the bottom of run.log
+
+# RAM over time: find the PID, then poll it
+PID=$(pgrep -n Rscript)
+while kill -0 "$PID" 2>/dev/null; do
+  echo "$(date +%s) $(ps -o rss= -p "$PID")"
+  sleep 5
+done > mem_trace.log
+
+# if you used parallel::makeCluster() / future workers, also sum their RSS -
+# pstree -p "$PID"   # shows the worker tree so you can find their PIDs
+```
+:::
+
+One macOS-specific wrinkle: `ps -o rss=` reports slightly higher than what Activity Monitor calls "Memory". If you want the Activity-Monitor-equivalent figure without `sudo`, macOS ships a built-in tool for exactly this:
+
+```bash
+footprint $PID
+```
+
+### Measuring on Linux {#sec-linux}
+
+The Linux equivalent of `/usr/bin/time -l` is `/usr/bin/time -v`, which reports `Maximum resident set size (kbytes)`. Linux also tracks a running process's peak RSS for you automatically, in `/proc/<PID>/status`, under `VmHWM` ("high water mark") - handy if you forgot to wrap the launch command and the job is already running.
+
+::: {.panel-tabset}
+### MATLAB
+
+```bash
+# peak RAM for the whole run
+/usr/bin/time -v matlab -batch "run('myscript.m')" 2>&1 | tee run.log
+# -> look for "Maximum resident set size (kbytes)" near the bottom of run.log
+
+# RAM over time
+PID=$(pgrep -n MATLAB)
+while kill -0 "$PID" 2>/dev/null; do
+  echo "$(date +%s) $(ps -o rss= -p "$PID")"
+  sleep 5
+done > mem_trace.log
+
+# or, the kernel's own running peak, if the job is already underway:
+cat /proc/$PID/status | grep VmHWM
+```
+
+### Stata
+
+```bash
+# peak RAM for the whole run
+/usr/bin/time -v stata-mp -b do myscript.do 2>&1 | tee run.log
+# -> look for "Maximum resident set size (kbytes)" near the bottom of run.log
+
+# RAM over time
+PID=$(pgrep -n stata-mp)
+while kill -0 "$PID" 2>/dev/null; do
+  echo "$(date +%s) $(ps -o rss= -p "$PID")"
+  sleep 5
+done > mem_trace.log
+```
+
+### R
+
+```bash
+# peak RAM for the whole run
+/usr/bin/time -v Rscript myscript.R 2>&1 | tee run.log
+# -> look for "Maximum resident set size (kbytes)" near the bottom of run.log
+
+# RAM over time
+PID=$(pgrep -n Rscript)
+while kill -0 "$PID" 2>/dev/null; do
+  echo "$(date +%s) $(ps -o rss= -p "$PID")"
+  sleep 5
+done > mem_trace.log
+
+# with parallel/future workers, sum across the worker tree:
+pstree -p "$PID"
+```
+:::
+
+If your job runs inside a container or a cgroup-managed scheduler (Slurm, PBS, Docker), the cgroup itself tracks a true peak for you - no polling, no race against process exit - via `memory.peak` (cgroup v2) or `memory.max_usage_in_bytes` (cgroup v1) under `/sys/fs/cgroup/...`. This is often the most reliable number on a shared cluster, since it reflects exactly what the scheduler enforced against.
+
+### Measuring on Windows {#sec-windows}
+
+Windows tracks a process's peak working set for you natively - no polling needed for the single-number version. PowerShell exposes it as `PeakWorkingSet64`.
+
+::: {.panel-tabset}
+### MATLAB
+
+```powershell
+# launch the run
+Start-Process matlab -ArgumentList '-batch "run(''myscript.m'')"' -Wait
+
+# peak RAM, read after the run - or poll it live while the run is in progress:
+(Get-Process MATLAB).PeakWorkingSet64
+
+# RAM over time: poll the PID on a timer
+while (Get-Process MATLAB -ErrorAction SilentlyContinue) {
+    $p = Get-Process MATLAB
+    "$(Get-Date -UFormat %s) $($p.WorkingSet64)" | Out-File -Append mem_trace.log
+    Start-Sleep -Seconds 5
+}
+```
+
+### Stata
+
+```powershell
+# launch the run (Windows batch-mode flag is /e, not -b)
+Start-Process StataMP-64 -ArgumentList '/e do myscript.do' -Wait
+
+# peak RAM
+(Get-Process StataMP-64).PeakWorkingSet64
+
+# RAM over time
+while (Get-Process StataMP-64 -ErrorAction SilentlyContinue) {
+    $p = Get-Process StataMP-64
+    "$(Get-Date -UFormat %s) $($p.WorkingSet64)" | Out-File -Append mem_trace.log
+    Start-Sleep -Seconds 5
+}
+```
+
+### R
+
+```powershell
+# launch the run
+Start-Process Rscript -ArgumentList 'myscript.R' -Wait
+
+# peak RAM
+(Get-Process Rscript).PeakWorkingSet64
+
+# RAM over time
+while (Get-Process Rscript -ErrorAction SilentlyContinue) {
+    $p = Get-Process Rscript
+    "$(Get-Date -UFormat %s) $($p.WorkingSet64)" | Out-File -Append mem_trace.log
+    Start-Sleep -Seconds 5
+}
+# with parallel workers (parallel::makeCluster(), future::plan("multisession")),
+# each worker is its own Rscript.exe process - sum PeakWorkingSet64 across all of them:
+Get-Process Rscript | Measure-Object -Property PeakWorkingSet64 -Sum
+```
+:::
+
+The GUI alternative on Windows is Task Manager's "Details" tab (or Resource Monitor): right-click the column headers, add "Peak working set", and watch it live - no scripting required if you just need a quick number.
+
+### Getting Stata onto your `PATH` {#sec-stata-path}
+
+The commands above assume `stata-mp` / `StataMP-64` resolve from any terminal. Stata's installer doesn't always set this up, particularly on macOS.
+
+::: {.panel-tabset}
+### macOS
+
+Stata ships as an application bundle, not a bare executable, so the binary lives inside `Stata.app`'s contents and isn't on `PATH` by default. Symlink it into a directory that already is:
+
+```bash
+sudo ln -s "/Applications/Stata/StataMP.app/Contents/MacOS/StataMP" /usr/local/bin/stata-mp
+```
+
+(swap `StataMP.app`/`StataMP` for `StataSE.app`/`StataSE` or `StataIC.app`/`StataIC` depending on which edition you have.) Confirm `/usr/local/bin` is on your `PATH` - it is by default on recent macOS with Homebrew installed - and open a new terminal to pick up the change.
+
+### Linux
+
+The Stata installer (or its `stinit` setup script) usually offers to create `stata-mp`/`stata-se`/`stata-ic` symlinks in `/usr/local/bin`. If you skipped that step, add Stata's install directory directly to your shell's startup file:
+
+```bash
+echo 'export PATH="/usr/local/stata18:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+(adjust `stata18` to your installed version/path.)
+
+### Windows
+
+The installer typically adds Stata to `PATH` automatically. If `StataMP-64` isn't recognized in a new terminal, add the install directory (e.g. `C:\Program Files\Stata18`) via *System Properties → Environment Variables → Path → Edit → New*, then open a new terminal. Alternatively, skip `PATH` entirely and call the full path directly in your run script.
+:::
+
+## Put the measured number in your README {#sec-readme}
+
+Once you've measured it, the number belongs in your README's computational requirements section - not "a lot of RAM" or "we used a server with 256GB", but the actual peak, per model variant if it differs, alongside the run time and the machine it was measured on. For example:
+
+| Step | Peak RAM | Wall time | Measured on |
+|---|---|---|---|
+| Baseline model: solve + simulate | 207 GB | 6h 40m | 32-core Linux server, 512 GB RAM |
+| Entrepreneur model: solve + simulate | 259 GB | 9h 15m | 32-core Linux server, 512 GB RAM |
+
+The extra memory for the second row is exactly the "large intermediate arrays" pattern from @sec-patterns: an extra state dimension (entrepreneurial choice) inflates the state-space grid, and the peak RAM moves with it - worth a one-line note in the README if the reason isn't obvious to a reader.
+
+It's worth going one step further and committing the actual evidence alongside the claim - the `run.log` with the `maximum resident set size` line, and the `mem_trace.log` or `psrecord` plot - into your package's `outputs/` or `logs/` folder. This is the same principle as in our [earlier post on in-text numbers](../20260910-latex-macros/index.qmd): don't just assert a number, let a replicator see where it came from.
+
+## Checklist
+
+- [ ] You have measured, not guessed, the peak RAM for every distinct model/script that a replicator will run.
+- [ ] If different variants of your model need meaningfully different RAM (e.g. a richer state space), each is reported separately.
+- [ ] Your README states requirements as actual numbers with units (GB, measured as $1\text{GB} = 1024^3$ bytes or $10^9$ bytes - say which), not qualitative descriptions.
+- [ ] If your code uses process-based parallelism (`parpool("Processes", ...)`, `future::plan("multisession")`, Stata instances launched in parallel), your measurement includes all worker processes, not just the parent.
+- [ ] The raw measurement (log file and/or memory-over-time plot) is checked into the replication package, not just the final summary number.
