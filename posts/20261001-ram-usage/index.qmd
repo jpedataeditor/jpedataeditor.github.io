@@ -1,6 +1,6 @@
 ---
 title: "How Much RAM Does Your Replication Package Actually Need?"
-description: "Why a measured RAM number belongs in your README, the usual causes of high memory use, and how to measure peak and time-series RAM on macOS, Linux and Windows for MATLAB, Stata and R."
+description: "Why a measured RAM number belongs in your README, the usual causes of high memory use, and how to measure peak and time-series RAM on macOS, Linux and Windows for different applications."
 author:
   - name: Florian Oswald
     url: https://floswald.github.io/
@@ -18,13 +18,13 @@ execute:
   message: false
 ---
 
-A recurring pattern in our reproducibility checks: a replication package runs fine on the author's workstation, and then stalls, swaps for hours, or gets silently killed on the replicator's machine. Almost always, the root cause is the same - the package needs more RAM than the author ever measured, and the README either says nothing about memory, or repeats a rough guess ("needs a lot of RAM, we used a server") instead of a number.
+A recurring pattern in our reproducibility checks: a replication package runs fine on the author's workstation, and then stalls, swaps for hours, or gets silently killed on the replicator's machine. Almost always, the root cause is the same - the package needs more RAM than the author ever measured, and the README either says nothing about memory, or is just a rough guess ("my computer has 256GB of RAM") instead of a precise number.
 
 This post is for authors who want to get this right the first time: why it matters, what usually causes it, and how to actually measure it - on macOS, Linux, and Windows, for MATLAB, Stata, and R.
 
 ## Why a precise RAM estimate matters {#sec-why}
 
-If your code needs more RAM than the replicator's machine physically has, the replication attempt simply cannot proceed - no amount of patience fixes a hard resource ceiling. Two things make this worse than it sounds at first:
+If your code needs more RAM than the replicator's machine physically has, the replication attempt simply cannot proceed. Two things make this worse than it sounds at first:
 
 - **Swap is not a safety net you can count on.** Some systems let a process exceed physical RAM by paging to disk ("swap"), at a steep performance cost - a run that takes two hours in RAM can take two days once it starts swapping. But this isn't universal: many HPC clusters and container environments either disable swap entirely or enforce a hard memory limit per job.
 - **Some systems kill the process outright.** Linux's OOM (out-of-memory) killer, Slurm/PBS job schedulers, and Docker's memory limits will terminate a process that asks for more than it's allowed, often with a terse `Killed` and no helpful error message. A replicator who doesn't know your code needs 260 GB has no way to anticipate this, let alone request the right machine.
@@ -41,11 +41,11 @@ Underneath almost every "this needs way more RAM than I expected" case is some f
 - **Accumulating results instead of streaming them.** Appending every simulation draw, every bootstrap replicate, or every panel-year to a growing in-memory object instead of writing each piece to disk as it's produced and discarding it from memory.
 - **Copies you didn't ask for.** Both R and MATLAB can silently copy-on-modify large objects inside functions or loops; a chain of data transformations can briefly hold several full copies of the same large object at once, well before the final result ever exists.
 
-None of these are wrong things to do - a dense value function array is often the right data structure, and `parpool` is often the right way to speed up a solve. The point is just that each of these choices has a direct, and sometimes surprising, RAM cost, and that cost is worth *measuring* rather than assuming.
+None of these are _wrong_. The point is just that each of these choices has a direct, and sometimes surprising, RAM cost, and that cost is worth *measuring* rather than assuming.
 
 ## How to measure it {#sec-measure}
 
-Two numbers are worth reporting, and they answer different questions:
+Two numbers are worth reporting:
 
 1. **Peak RAM for the whole run** - a single number, the maximum any process reached. This is what determines whether the job fits on a given machine at all.
 2. **RAM over time** - a trace showing memory climbing and falling over the course of the run. This tells you *where* the peak happens (loading the raw panel? solving the model? the forecast-error regressions after simulation?), which matters if you want to reduce it later, or just want to tell a replicator which step to watch.
