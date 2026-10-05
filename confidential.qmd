@@ -158,12 +158,58 @@ panel = panel.sort_values(["id", "year"]).reset_index(drop=True)
 # save
 panel.to_csv("data/raw/simulated_panel.csv", index=False)
 ```
-<!-- 
 ## Using an LLM Coding Agent {#sec-llm}
 
-If you use an LLM coding assistant (Claude, ChatGPT, Copilot, Cursor, …), you can ask it to
-write the simulation script for you. Copy the prompt below, fill in the bracketed sections
-with a description of your actual data, and paste it into your preferred tool.
+If you use an LLM coding assistant (Claude, ChatGPT, Copilot, Cursor, …), it can write the
+simulation script for you — but only confidential **code and documentation** should ever
+reach the model, never confidential **data**. "The model never saw the raw rows" is not
+automatically the same as "this is safe": aggregated statistics can still leak information
+about individual records, and some data use agreements prohibit sending *any* derived
+information off your machine. The pattern below is designed around both risks.
+
+### The hard rule: no raw data to the model
+
+An LLM — local or API-based — must never be given read access to your confidential raw data
+files, including through a coding agent that can browse your filesystem on its own.
+
+- Give the agent read access only to your **code**, **README**, and **codebook/documentation**
+  — not to the data directory.
+- If the agent wants summary statistics to make the simulated distributions more realistic,
+  do not let it compute those itself. You compute the summary (see below) and hand over only
+  the sanitized result.
+- State the rule explicitly in your prompt or skill configuration — *"Never open, read, or
+  load any file under `data/raw/`. If you need information about the actual data, stop and
+  ask me for permission first."* Treat this as a backstop, not the real control. The real
+  control is removing the agent's filesystem permission to that directory entirely (a deny
+  rule in your coding tool's settings, or running the agent in a sandbox/worktree where the
+  raw files are never mounted). A prompt instruction can be ignored by a model; a missing
+  file permission cannot. You can see an example for a settings file below.
+
+### Optional: calibrate with a disclosure-safe summary
+
+Guessing distributions from code and documentation alone is often good enough — that's the
+default, and it carries zero data-exposure risk. If you want the simulated data to track the
+real distributions more closely, compute a **sanitized** summary yourself (e.g. with
+`skimr::skim()` in R, or `.describe()` in Python) and hand only that to the model — never the
+underlying file.
+
+Before sharing that summary with any LLM, strip it down:
+
+- **Drop identifiers and free text** from the summary entirely (firm names, addresses, any
+  string field) — don't let the model see these even in aggregate.
+- **Suppress exact extremes.** An exact min or max is often one real record. Round to a
+  plausible range instead of passing through the true value.
+- **Mask small cells.** Any category, group, or `skim()` row backed by very few observations
+  (a common disclosure-control threshold is n < 5) effectively identifies individual records.
+  Drop or coarsen these rather than reporting them.
+- **Check your data use agreement.** Many restricted-data agreements (administrative records,
+  Census-type enclaves, IRB-governed data) prohibit transmitting *any* derived information to
+  a third-party API, aggregated or not. Sanitizing the summary satisfies a reasonable internal
+  threat model — it does not override a stricter contractual restriction. Confirm this is
+  permitted before proceeding, and when in doubt, don't send it.
+
+Only once you have produced that sanitized file should the agent be allowed to read it — and
+only that file, never the original data.
 
 ::: {.callout-tip}
 The simulation script does **not** need to be written in the same language as your analysis.
@@ -172,12 +218,24 @@ scripts, or anything else. All that matters is that it produces output files in 
 format and at the exact paths your analysis code expects to read.
 :::
 
+### Prompt
+
+Copy the prompt below, fill in the bracketed sections with a description of your actual data
+(not the data itself), and paste it into your preferred tool.
+
 ```
 You are helping a researcher prepare a simulated version of a confidential dataset for a journal reproducibility check.
 
 Task: Write a complete simulation script that generates fake versions of the confidential
 input files listed below. The fake data will be used in place of the real data so the full
-analysis pipeline can be run end-to-end by an independent Data Editor. Under no circumstances are you allowed to upload any part of the confidential data to the internet. You are allowed to list the first row of each dataset, in order to obtain the 
+analysis pipeline can be run end-to-end by an independent Data Editor.
+
+Hard rule: you must never open, read, or load any confidential raw data file, by any means
+(no read_csv/read_dta/read.table or equivalent on the paths listed below, no filesystem
+browsing into the data directory). If you need information about the actual data beyond
+what is given here, stop and ask for permission before doing anything else — do not try to
+read it yourself. The structure below (and, if provided, a sanitized summary file) is all
+you should rely on.
 
 Choose the most convenient language for this task — it does NOT need to be the same language
 as the analysis pipeline. Good choices include Python, R, Julia, Stata, or any language you
@@ -186,7 +244,7 @@ format and at the exact paths that the analysis code expects to read.
 
 Requirements:
 - Same variable names and data types as the real data
-- Same number of rows (or close approximation — see below)
+- you can use a smaller number of rows as the real data. Ask the user for the minimum required rows for each dataset.
 - Same file format and path as the real data (e.g. a .dta file at data/raw/file.dta)
 - Respect sign and support restrictions:
     * Always-positive variables (income, price, age) → simulate as positive (e.g. log-normal)
@@ -210,6 +268,11 @@ My confidential input files:
 Groups/cells my code conditions on (must all appear in simulated data):
 [LIST e.g. all 5 regions, all years, both treatment arms]
 
+[OPTIONAL — only if you have produced a sanitized summary as described above:
+Here is a disclosure-safe summary of the real data's distributions (identifiers removed,
+extremes rounded, small cells suppressed) to calibrate the simulation more closely:
+<paste sanitized summary here>]
+
 Please write the complete simulation script and save output to the same path my code expects.
 ```
 
@@ -218,6 +281,9 @@ Please write the complete simulation script and save output to the same path my 
 If you use [Claude Code](https://claude.ai/code), you can install a dedicated skill that
 inspects your replication package automatically — reading your code to find every data read,
 inferring variable types and sign restrictions, and writing the simulation script for you.
+The skill enforces the no-raw-data rule above: it reads your code and documentation, never
+your confidential data files, and will stop and ask you before doing anything else if it
+needs information it cannot get from code or docs alone.
 
 **To install:**
 
@@ -232,8 +298,36 @@ inferring variable types and sign restrictions, and writing the simulation scrip
    judges most convenient, and report any variables whose type or support it could not
    determine for your review.
 
+::: {.callout-important}
+Installing the skill is not a substitute for restricting filesystem access. Even with the
+skill's built-in rule, you should still deny the agent read access to your data directory at
+the tool-permission level so the rule is enforced structurally, not just by the model
+choosing to follow it. In Claude Code, add a `deny` rule for your raw-data path to
+`.claude/settings.json` (project-level) or `~/.claude/settings.json` (user-level):
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Read(./data/raw/**)",
+      "Bash(cat:./data/raw/**)",
+      "Bash(grep:./data/raw/**)"
+    ]
+  }
+}
+```
+
+Adjust the path glob to wherever your confidential inputs actually live. A deny rule here
+means the agent cannot read those files even if it (or a prompt) tries to — it fails at the
+tool-permission check, before any content would reach the model. This is the control that
+actually matters; the prompt-level rule is just a backstop in case the permission file is
+missing or misconfigured.
+:::
+
 ::: {.callout-note}
 The skill works best when your code has comments or variable labels that describe the data.
 If Claude Code flags variables it could not resolve, add a brief description of those variables
-in your `README` and re-run, or fill them in manually in the generated script.
-::: -->
+in your `README` and re-run, or fill them in manually in the generated script. If you want
+closer-to-real simulated distributions, you can instead provide a sanitized `skim()`-style
+summary (see above) for the skill to calibrate against — never the raw file itself.
+:::

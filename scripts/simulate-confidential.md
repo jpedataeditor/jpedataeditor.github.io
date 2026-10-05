@@ -4,6 +4,32 @@ Generate a simulation script that produces fake versions of all confidential raw
 in this replication package, satisfying the JPE Data Editor's requirements for a
 simulated-data submission.
 
+## Hard rule — never read raw confidential data
+
+You must never open, read, or load any confidential raw data file by any means: no
+`read_csv`/`read_dta`/`read.table`/`pd.read_*`/`haven::read_*` or equivalent on a path
+identified as a confidential input in Step 1, and no browsing into the data directory to
+"just look." This holds even if you believe the look would be harmless or you only intend to
+read one row.
+
+Everything you need should come from the code, the `README`, codebooks, and comments. If that
+is not enough to determine a variable's type or support:
+
+1. **Stop. Do not read the file.**
+2. Ask the user for permission before doing anything else.
+3. If the user wants the simulation calibrated to the real distributions, ask them to run a
+   summary (e.g. `skimr::skim()` in R, `.describe()` in Python) **themselves**, sanitize it
+   (drop identifiers/free text, suppress exact extremes, mask any cell with few observations —
+   a common threshold is n < 5), and hand you only that sanitized summary file. You may then
+   read *that* file — never the original data — to calibrate the simulation.
+4. If no such summary is offered, proceed with a best-effort guess from documentation and flag
+   the variable in the Step 5 report for the author to check.
+
+This rule is a backstop, not the real control — the real control is that your filesystem
+permissions should already exclude the raw data directory. If you find yourself able to read
+a file you've identified as a confidential input, treat that as a configuration gap to flag
+to the user, not an invitation to use the access.
+
 ## When invoked
 
 The user may specify a language preference. If not specified, choose the language that makes
