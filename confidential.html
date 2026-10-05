@@ -268,6 +268,13 @@ window.Quarto = {
   <li><a href="#r" id="toc-r" class="nav-link" data-scroll-target="#r"><span class="header-section-number">3.2</span> R</a></li>
   <li><a href="#python" id="toc-python" class="nav-link" data-scroll-target="#python"><span class="header-section-number">3.3</span> Python</a></li>
   </ul></li>
+  <li><a href="#sec-llm" id="toc-sec-llm" class="nav-link" data-scroll-target="#sec-llm"><span class="header-section-number">4</span> Using an LLM Coding Agent</a>
+  <ul class="collapse">
+  <li><a href="#the-hard-rule-no-raw-data-to-the-model" id="toc-the-hard-rule-no-raw-data-to-the-model" class="nav-link" data-scroll-target="#the-hard-rule-no-raw-data-to-the-model"><span class="header-section-number">4.1</span> The hard rule: no raw data to the model</a></li>
+  <li><a href="#optional-calibrate-with-a-disclosure-safe-summary" id="toc-optional-calibrate-with-a-disclosure-safe-summary" class="nav-link" data-scroll-target="#optional-calibrate-with-a-disclosure-safe-summary"><span class="header-section-number">4.2</span> Optional: calibrate with a disclosure-safe summary</a></li>
+  <li><a href="#prompt" id="toc-prompt" class="nav-link" data-scroll-target="#prompt"><span class="header-section-number">4.3</span> Prompt</a></li>
+  <li><a href="#sec-skill" id="toc-sec-skill" class="nav-link" data-scroll-target="#sec-skill"><span class="header-section-number">4.4</span> Claude Code Skill</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -451,26 +458,60 @@ Important
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co"># save</span></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>panel.to_csv(<span class="st">"data/raw/simulated_panel.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<!-- 
-## Using an LLM Coding Agent {#sec-llm}
-
-If you use an LLM coding assistant (Claude, ChatGPT, Copilot, Cursor, …), you can ask it to
-write the simulation script for you. Copy the prompt below, fill in the bracketed sections
-with a description of your actual data, and paste it into your preferred tool.
-
-::: {.callout-tip}
-The simulation script does **not** need to be written in the same language as your analysis.
-Use whatever language you find most convenient — R, Python, Julia, Stata, Matlab, shell
-scripts, or anything else. All that matters is that it produces output files in the exact
-format and at the exact paths your analysis code expects to read.
-:::
-
-```
-You are helping a researcher prepare a simulated version of a confidential dataset for a journal reproducibility check.
+</section>
+</section>
+<section id="sec-llm" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="sec-llm"><span class="header-section-number">4</span> Using an LLM Coding Agent</h2>
+<p>If you use an LLM coding assistant (Claude, ChatGPT, Copilot, Cursor, …), it can write the simulation script for you — but only confidential <strong>code and documentation</strong> should ever reach the model, never confidential <strong>data</strong>. “The model never saw the raw rows” is not automatically the same as “this is safe”: aggregated statistics can still leak information about individual records, and some data use agreements prohibit sending <em>any</em> derived information off your machine. The pattern below is designed around both risks.</p>
+<section id="the-hard-rule-no-raw-data-to-the-model" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="the-hard-rule-no-raw-data-to-the-model"><span class="header-section-number">4.1</span> The hard rule: no raw data to the model</h3>
+<p>An LLM — local or API-based — must never be given read access to your confidential raw data files, including through a coding agent that can browse your filesystem on its own.</p>
+<ul>
+<li>Give the agent read access only to your <strong>code</strong>, <strong>README</strong>, and <strong>codebook/documentation</strong> — not to the data directory.</li>
+<li>If the agent wants summary statistics to make the simulated distributions more realistic, do not let it compute those itself. You compute the summary (see below) and hand over only the sanitized result.</li>
+<li>State the rule explicitly in your prompt or skill configuration — <em>“Never open, read, or load any file under <code>data/raw/</code>. If you need information about the actual data, stop and ask me for permission first.”</em> Treat this as a backstop, not the real control. The real control is removing the agent’s filesystem permission to that directory entirely (a deny rule in your coding tool’s settings, or running the agent in a sandbox/worktree where the raw files are never mounted). A prompt instruction can be ignored by a model; a missing file permission cannot. You can see an example for a settings file below.</li>
+</ul>
+</section>
+<section id="optional-calibrate-with-a-disclosure-safe-summary" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="optional-calibrate-with-a-disclosure-safe-summary"><span class="header-section-number">4.2</span> Optional: calibrate with a disclosure-safe summary</h3>
+<p>Guessing distributions from code and documentation alone is often good enough — that’s the default, and it carries zero data-exposure risk. If you want the simulated data to track the real distributions more closely, compute a <strong>sanitized</strong> summary yourself (e.g.&nbsp;with <code>skimr::skim()</code> in R, or <code>.describe()</code> in Python) and hand only that to the model — never the underlying file.</p>
+<p>Before sharing that summary with any LLM, strip it down:</p>
+<ul>
+<li><strong>Drop identifiers and free text</strong> from the summary entirely (firm names, addresses, any string field) — don’t let the model see these even in aggregate.</li>
+<li><strong>Suppress exact extremes.</strong> An exact min or max is often one real record. Round to a plausible range instead of passing through the true value.</li>
+<li><strong>Mask small cells.</strong> Any category, group, or <code>skim()</code> row backed by very few observations (a common disclosure-control threshold is n &lt; 5) effectively identifies individual records. Drop or coarsen these rather than reporting them.</li>
+<li><strong>Check your data use agreement.</strong> Many restricted-data agreements (administrative records, Census-type enclaves, IRB-governed data) prohibit transmitting <em>any</em> derived information to a third-party API, aggregated or not. Sanitizing the summary satisfies a reasonable internal threat model — it does not override a stricter contractual restriction. Confirm this is permitted before proceeding, and when in doubt, don’t send it.</li>
+</ul>
+<p>Only once you have produced that sanitized file should the agent be allowed to read it — and only that file, never the original data.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The simulation script does <strong>not</strong> need to be written in the same language as your analysis. Use whatever language you find most convenient — R, Python, Julia, Stata, Matlab, shell scripts, or anything else. All that matters is that it produces output files in the exact format and at the exact paths your analysis code expects to read.</p>
+</div>
+</div>
+</section>
+<section id="prompt" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="prompt"><span class="header-section-number">4.3</span> Prompt</h3>
+<p>Copy the prompt below, fill in the bracketed sections with a description of your actual data (not the data itself), and paste it into your preferred tool.</p>
+<pre><code>You are helping a researcher prepare a simulated version of a confidential dataset for a journal reproducibility check.
 
 Task: Write a complete simulation script that generates fake versions of the confidential
 input files listed below. The fake data will be used in place of the real data so the full
-analysis pipeline can be run end-to-end by an independent Data Editor. Under no circumstances are you allowed to upload any part of the confidential data to the internet. You are allowed to list the first row of each dataset, in order to obtain the 
+analysis pipeline can be run end-to-end by an independent Data Editor.
+
+Hard rule: you must never open, read, or load any confidential raw data file, by any means
+(no read_csv/read_dta/read.table or equivalent on the paths listed below, no filesystem
+browsing into the data directory). If you need information about the actual data beyond
+what is given here, stop and ask for permission before doing anything else — do not try to
+read it yourself. The structure below (and, if provided, a sanitized summary file) is all
+you should rely on.
 
 Choose the most convenient language for this task — it does NOT need to be the same language
 as the analysis pipeline. Good choices include Python, R, Julia, Stata, or any language you
@@ -479,7 +520,7 @@ format and at the exact paths that the analysis code expects to read.
 
 Requirements:
 - Same variable names and data types as the real data
-- Same number of rows (or close approximation — see below)
+- you can use a smaller number of rows as the real data. Ask the user for the minimum required rows for each dataset.
 - Same file format and path as the real data (e.g. a .dta file at data/raw/file.dta)
 - Respect sign and support restrictions:
     * Always-positive variables (income, price, age) → simulate as positive (e.g. log-normal)
@@ -496,40 +537,66 @@ My confidential input files:
     - firm_id (integer, identifier)
     - year (integer, 1990–2014)
     - revenue (float, always positive, USD thousands)
-    - employment (integer, always >= 1)
+    - employment (integer, always &gt;= 1)
     - treated (binary 0/1, constant within firm)
     - region (categorical, values 1–5)]
 
 Groups/cells my code conditions on (must all appear in simulated data):
 [LIST e.g. all 5 regions, all years, both treatment arms]
 
-Please write the complete simulation script and save output to the same path my code expects.
-```
+[OPTIONAL — only if you have produced a sanitized summary as described above:
+Here is a disclosure-safe summary of the real data's distributions (identifiers removed,
+extremes rounded, small cells suppressed) to calibrate the simulation more closely:
+&lt;paste sanitized summary here&gt;]
 
-### Claude Code Skill {#sec-skill}
-
-If you use [Claude Code](https://claude.ai/code), you can install a dedicated skill that
-inspects your replication package automatically — reading your code to find every data read,
-inferring variable types and sign restrictions, and writing the simulation script for you.
-
-**To install:**
-
-1. Copy [`simulate-confidential.md`](scripts/simulate-confidential.md) into your project's
-   `.claude/commands/` folder (create it if it does not exist).
-2. From the root of your replication package, run:
-   ```
-   /simulate-confidential
-   ```
-3. Claude Code will scan your code, infer the structure of each confidential file, write the
-   simulation script to `code/simulate/simulate_confidential.<ext>` in whichever language it
-   judges most convenient, and report any variables whose type or support it could not
-   determine for your review.
-
-::: {.callout-note}
-The skill works best when your code has comments or variable labels that describe the data.
-If Claude Code flags variables it could not resolve, add a brief description of those variables
-in your `README` and re-run, or fill them in manually in the generated script.
-::: -->
+Please write the complete simulation script and save output to the same path my code expects.</code></pre>
+</section>
+<section id="sec-skill" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="sec-skill"><span class="header-section-number">4.4</span> Claude Code Skill</h3>
+<p>If you use <a href="https://claude.ai/code">Claude Code</a>, you can install a dedicated skill that inspects your replication package automatically — reading your code to find every data read, inferring variable types and sign restrictions, and writing the simulation script for you. The skill enforces the no-raw-data rule above: it reads your code and documentation, never your confidential data files, and will stop and ask you before doing anything else if it needs information it cannot get from code or docs alone.</p>
+<p><strong>To install:</strong></p>
+<ol type="1">
+<li><p>Copy <a href="./scripts/simulate-confidential.html"><code>simulate-confidential.md</code></a> into your project’s <code>.claude/commands/</code> folder (create it if it does not exist).</p></li>
+<li><p>From the root of your replication package, run:</p>
+<pre><code>/simulate-confidential</code></pre></li>
+<li><p>Claude Code will scan your code, infer the structure of each confidential file, write the simulation script to <code>code/simulate/simulate_confidential.&lt;ext&gt;</code> in whichever language it judges most convenient, and report any variables whose type or support it could not determine for your review.</p></li>
+</ol>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Installing the skill is not a substitute for restricting filesystem access. Even with the skill’s built-in rule, you should still deny the agent read access to your data directory at the tool-permission level so the rule is enforced structurally, not just by the model choosing to follow it. In Claude Code, add a <code>deny</code> rule for your raw-data path to <code>.claude/settings.json</code> (project-level) or <code>~/.claude/settings.json</code> (user-level):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"permissions"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"deny"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Read(./data/raw/**)"</span><span class="ot">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Bash(cat:./data/raw/**)"</span><span class="ot">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Bash(grep:./data/raw/**)"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Adjust the path glob to wherever your confidential inputs actually live. A deny rule here means the agent cannot read those files even if it (or a prompt) tries to — it fails at the tool-permission check, before any content would reach the model. This is the control that actually matters; the prompt-level rule is just a backstop in case the permission file is missing or misconfigured.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The skill works best when your code has comments or variable labels that describe the data. If Claude Code flags variables it could not resolve, add a brief description of those variables in your <code>README</code> and re-run, or fill them in manually in the generated script. If you want closer-to-real simulated distributions, you can instead provide a sanitized <code>skim()</code>-style summary (see above) for the skill to calibrate against — never the raw file itself.</p>
+</div>
+</div>
 
 
 </section>

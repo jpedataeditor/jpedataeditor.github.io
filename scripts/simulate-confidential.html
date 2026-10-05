@@ -198,6 +198,7 @@ cookieconsent.run({
   <ul>
   <li><a href="#simulate-confidential-confidential-data-simulator" id="toc-simulate-confidential-confidential-data-simulator" class="nav-link active" data-scroll-target="#simulate-confidential-confidential-data-simulator">/simulate-confidential — Confidential Data Simulator</a>
   <ul class="collapse">
+  <li><a href="#hard-rule-never-read-raw-confidential-data" id="toc-hard-rule-never-read-raw-confidential-data" class="nav-link" data-scroll-target="#hard-rule-never-read-raw-confidential-data">Hard rule — never read raw confidential data</a></li>
   <li><a href="#when-invoked" id="toc-when-invoked" class="nav-link" data-scroll-target="#when-invoked">When invoked</a></li>
   <li><a href="#step-1-locate-all-confidential-data-reads" id="toc-step-1-locate-all-confidential-data-reads" class="nav-link" data-scroll-target="#step-1-locate-all-confidential-data-reads">Step 1 — Locate all confidential data reads</a></li>
   <li><a href="#step-2-collect-variable-metadata" id="toc-step-2-collect-variable-metadata" class="nav-link" data-scroll-target="#step-2-collect-variable-metadata">Step 2 — Collect variable metadata</a></li>
@@ -217,6 +218,18 @@ cookieconsent.run({
 <section id="simulate-confidential-confidential-data-simulator" class="level1">
 <h1>/simulate-confidential — Confidential Data Simulator</h1>
 <p>Generate a simulation script that produces fake versions of all confidential raw input files in this replication package, satisfying the JPE Data Editor’s requirements for a simulated-data submission.</p>
+<section id="hard-rule-never-read-raw-confidential-data" class="level2">
+<h2 class="anchored" data-anchor-id="hard-rule-never-read-raw-confidential-data">Hard rule — never read raw confidential data</h2>
+<p>You must never open, read, or load any confidential raw data file by any means: no <code>read_csv</code>/<code>read_dta</code>/<code>read.table</code>/<code>pd.read_*</code>/<code>haven::read_*</code> or equivalent on a path identified as a confidential input in Step 1, and no browsing into the data directory to “just look.” This holds even if you believe the look would be harmless or you only intend to read one row.</p>
+<p>Everything you need should come from the code, the <code>README</code>, codebooks, and comments. If that is not enough to determine a variable’s type or support:</p>
+<ol type="1">
+<li><strong>Stop. Do not read the file.</strong></li>
+<li>Ask the user for permission before doing anything else.</li>
+<li>If the user wants the simulation calibrated to the real distributions, ask them to run a summary (e.g.&nbsp;<code>skimr::skim()</code> in R, <code>.describe()</code> in Python) <strong>themselves</strong>, sanitize it (drop identifiers/free text, suppress exact extremes, mask any cell with few observations — a common threshold is n &lt; 5), and hand you only that sanitized summary file. You may then read <em>that</em> file — never the original data — to calibrate the simulation.</li>
+<li>If no such summary is offered, proceed with a best-effort guess from documentation and flag the variable in the Step 5 report for the author to check.</li>
+</ol>
+<p>This rule is a backstop, not the real control — the real control is that your filesystem permissions should already exclude the raw data directory. If you find yourself able to read a file you’ve identified as a confidential input, treat that as a configuration gap to flag to the user, not an invitation to use the access.</p>
+</section>
 <section id="when-invoked" class="level2">
 <h2 class="anchored" data-anchor-id="when-invoked">When invoked</h2>
 <p>The user may specify a language preference. If not specified, choose the language that makes the task easiest — typically Python or Julia for their strong data-generation libraries — <strong>regardless of what language the analysis pipeline uses</strong>. The simulation script only needs to produce output files in the correct format and at the correct paths; it does not need to share a language with the analysis code.</p>
