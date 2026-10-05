@@ -268,10 +268,6 @@ window.Quarto = {
   <li><a href="#r" id="toc-r" class="nav-link" data-scroll-target="#r"><span class="header-section-number">3.2</span> R</a></li>
   <li><a href="#python" id="toc-python" class="nav-link" data-scroll-target="#python"><span class="header-section-number">3.3</span> Python</a></li>
   </ul></li>
-  <li><a href="#sec-llm" id="toc-sec-llm" class="nav-link" data-scroll-target="#sec-llm"><span class="header-section-number">4</span> Using an LLM Coding Agent</a>
-  <ul class="collapse">
-  <li><a href="#sec-skill" id="toc-sec-skill" class="nav-link" data-scroll-target="#sec-skill"><span class="header-section-number">4.1</span> Claude Code Skill</a></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
@@ -327,6 +323,7 @@ Note
 <li><strong>Same file format</strong>: if your code reads a <code>.dta</code> file, supply a <code>.dta</code> file; if it reads a <code>.csv</code>, supply a <code>.csv</code>.</li>
 <li><strong>Respect sign and support restrictions</strong>: if a variable is always positive in the real data (e.g.&nbsp;income, price, age), simulate it as positive. If a variable is a dummy, simulate it as 0/1. If a categorical variable takes values <span class="math inline">\(\{1,2,3\}\)</span>, simulate it within that set. You do not need to match the distribution, but violating the support can cause downstream failures.</li>
 <li><strong>Cover all relevant code paths</strong>: make sure the simulated data contains at least one observation in each group or cell your code conditions on (e.g.&nbsp;all regions, all time periods, all treatment arms).</li>
+<li><strong>Dimensionality</strong>: You need to supply a simple document (csv or md) where you list the number of rows and columns of each confidential dataset that you use. Your simulated version may have fewer observations (i.e.&nbsp;rows), it must have the same number of columns (i.e.&nbsp;variables). You need to ensure that the chosen dimensionality implies that your programs will run correctly.</li>
 </ul></li>
 <li><p><strong>Set a random seed</strong> at the top of your simulation script so that the simulated data is exactly reproducible.</p></li>
 <li><p><strong>Run your full pipeline on the simulated data</strong> from the first cleaning script to the last output script. Fix any errors that arise. Do not skip any script.</p></li>
@@ -454,29 +451,26 @@ Important
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co"># save</span></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>panel.to_csv(<span class="st">"data/raw/simulated_panel.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-</section>
-<section id="sec-llm" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="sec-llm"><span class="header-section-number">4</span> Using an LLM Coding Agent</h2>
-<p>If you use an LLM coding assistant (Claude, ChatGPT, Copilot, Cursor, …), you can ask it to write the simulation script for you. Copy the prompt below, fill in the bracketed sections with a description of your actual data, and paste it into your preferred tool.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The simulation script does <strong>not</strong> need to be written in the same language as your analysis. Use whatever language you find most convenient — R, Python, Julia, Stata, Matlab, shell scripts, or anything else. All that matters is that it produces output files in the exact format and at the exact paths your analysis code expects to read.</p>
-</div>
-</div>
-<pre><code>You are helping a researcher prepare a simulated dataset for a journal reproducibility check.
+<!-- 
+## Using an LLM Coding Agent {#sec-llm}
+
+If you use an LLM coding assistant (Claude, ChatGPT, Copilot, Cursor, …), you can ask it to
+write the simulation script for you. Copy the prompt below, fill in the bracketed sections
+with a description of your actual data, and paste it into your preferred tool.
+
+::: {.callout-tip}
+The simulation script does **not** need to be written in the same language as your analysis.
+Use whatever language you find most convenient — R, Python, Julia, Stata, Matlab, shell
+scripts, or anything else. All that matters is that it produces output files in the exact
+format and at the exact paths your analysis code expects to read.
+:::
+
+```
+You are helping a researcher prepare a simulated version of a confidential dataset for a journal reproducibility check.
 
 Task: Write a complete simulation script that generates fake versions of the confidential
 input files listed below. The fake data will be used in place of the real data so the full
-analysis pipeline can be run end-to-end by an independent Data Editor.
+analysis pipeline can be run end-to-end by an independent Data Editor. Under no circumstances are you allowed to upload any part of the confidential data to the internet. You are allowed to list the first row of each dataset, in order to obtain the 
 
 Choose the most convenient language for this task — it does NOT need to be the same language
 as the analysis pipeline. Good choices include Python, R, Julia, Stata, or any language you
@@ -502,37 +496,40 @@ My confidential input files:
     - firm_id (integer, identifier)
     - year (integer, 1990–2014)
     - revenue (float, always positive, USD thousands)
-    - employment (integer, always &gt;= 1)
+    - employment (integer, always >= 1)
     - treated (binary 0/1, constant within firm)
     - region (categorical, values 1–5)]
 
 Groups/cells my code conditions on (must all appear in simulated data):
 [LIST e.g. all 5 regions, all years, both treatment arms]
 
-Please write the complete simulation script and save output to the same path my code expects.</code></pre>
-<section id="sec-skill" class="level3" data-number="4.1">
-<h3 data-number="4.1" class="anchored" data-anchor-id="sec-skill"><span class="header-section-number">4.1</span> Claude Code Skill</h3>
-<p>If you use <a href="https://claude.ai/code">Claude Code</a>, you can install a dedicated skill that inspects your replication package automatically — reading your code to find every data read, inferring variable types and sign restrictions, and writing the simulation script for you.</p>
-<p><strong>To install:</strong></p>
-<ol type="1">
-<li><p>Copy <a href="./scripts/simulate-confidential.html"><code>simulate-confidential.md</code></a> into your project’s <code>.claude/commands/</code> folder (create it if it does not exist).</p></li>
-<li><p>From the root of your replication package, run:</p>
-<pre><code>/simulate-confidential</code></pre></li>
-<li><p>Claude Code will scan your code, infer the structure of each confidential file, write the simulation script to <code>code/simulate/simulate_confidential.&lt;ext&gt;</code> in whichever language it judges most convenient, and report any variables whose type or support it could not determine for your review.</p></li>
-</ol>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The skill works best when your code has comments or variable labels that describe the data. If Claude Code flags variables it could not resolve, add a brief description of those variables in your <code>README</code> and re-run, or fill them in manually in the generated script.</p>
-</div>
-</div>
+Please write the complete simulation script and save output to the same path my code expects.
+```
+
+### Claude Code Skill {#sec-skill}
+
+If you use [Claude Code](https://claude.ai/code), you can install a dedicated skill that
+inspects your replication package automatically — reading your code to find every data read,
+inferring variable types and sign restrictions, and writing the simulation script for you.
+
+**To install:**
+
+1. Copy [`simulate-confidential.md`](scripts/simulate-confidential.md) into your project's
+   `.claude/commands/` folder (create it if it does not exist).
+2. From the root of your replication package, run:
+   ```
+   /simulate-confidential
+   ```
+3. Claude Code will scan your code, infer the structure of each confidential file, write the
+   simulation script to `code/simulate/simulate_confidential.<ext>` in whichever language it
+   judges most convenient, and report any variables whose type or support it could not
+   determine for your review.
+
+::: {.callout-note}
+The skill works best when your code has comments or variable labels that describe the data.
+If Claude Code flags variables it could not resolve, add a brief description of those variables
+in your `README` and re-run, or fill them in manually in the generated script.
+::: -->
 
 
 </section>
