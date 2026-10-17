@@ -325,7 +325,7 @@ Note
 <li><p><strong>Identify every confidential raw input file</strong> your code reads. List them in your <code>README</code>.</p></li>
 <li><p><strong>Create a dedicated simulation script which generates a simulated version of each file.</strong> The simulated data must satisfy the following:</p>
 <ul>
-<li><strong>Same dimensionality</strong>: same number of variables (columns) and same number of observations (rows).</li>
+<li><strong>Dimensionality</strong>: same number of variables (columns) and a suitable number of observations (rows) - you are not required to provide the full number of rows, as long as you can guarantee that your programs will run correctly.</li>
 <li><strong>Same variable names and types</strong>: column names, data types (integer, float, string, date), and units must match the real data exactly, because your code will reference them by name.</li>
 <li><strong>Same file format</strong>: if your code reads a <code>.dta</code> file, supply a <code>.dta</code> file; if it reads a <code>.csv</code>, supply a <code>.csv</code>.</li>
 <li><strong>Respect sign and support restrictions</strong>: if a variable is always positive in the real data (e.g.&nbsp;income, price, age), simulate it as positive. If a variable is a dummy, simulate it as 0/1. If a categorical variable takes values <span class="math inline">\(\{1,2,3\}\)</span>, simulate it within that set. You do not need to match the distribution, but violating the support can cause downstream failures.</li>
