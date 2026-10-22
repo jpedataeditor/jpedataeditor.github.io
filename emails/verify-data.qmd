@@ -1,0 +1,22 @@
+---
+title: "Email template: Anonymous Data Providers"
+---
+
+This email template is sent to authors who cannot by default identify their data providers in paper or readme.
+
+> Dear Dr. [Author],
+> 
+> I'm writing to you as Data Editor for the JPE regarding your paper [MANUSCRIPT ID]. Your paper uses data from (EXAMPLE - REPLACE THIS) "a large bank […] in a province located in some country." The organization is not named. The JPE expects such information in the README, if not in the manuscript. However, there do exist reasons why a data provider cannot be named. If that is the case for your paper, the reasons for not naming need to be stated in the manuscript title footnote and the README.
+> 
+> As per JPE Data and Code Policy, "Authors must provide sufficient information to replicate the process of obtaining the raw data from the original sources and cite all the sources of data appropriately." In rare cases where this requirement cannot be met due to valid constraints beyond the authors' control, the JPE data editor and the journal editor may choose to modify the requirement(s), and such modifications will be noted in the article acknowledgements. However, in these cases the source of the data must still be disclosed to the JPE data editor prior to final acceptance of the paper.
+> 
+> I have asked authors in similar situations to reveal the name of the data provider under a non-disclosure agreement (NDA) with me, so that I can conduct some plausibility checks. Note that the fact that an NDA with me exists will be made public by the JPE. The NDA means that I cannot reveal the disclosed information to others, nor would the JPE publish any names. I [attach an NDA](verify-data-agreement.qmd) that I would sign with you in my personal capacity.
+> 
+> Could you please let me know whether (a) you are OK with revealing the name of the data providers exlusively to me under an NDA you sign with me; (b) if you are uncertain, whether the organization would be OK with the above arrangement; (c) if you are OK with me contacting the source directly.
+> 
+> [IF NECESSARY] Your DCAF indicates that you cannot share the data with us, even when not published. Could you confirm whether the data provider would be open to signing a confidentiality agreement directly with the JPE, to allow temporary access to the data for verification purposes?
+> 
+> I understand this is an unusual request and am happy to answer any questions about the process. We can also chat over Zoom if needed.
+> 
+> Sincerely,
+> Florian

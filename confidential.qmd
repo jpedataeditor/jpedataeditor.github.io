@@ -20,7 +20,7 @@ Follow these steps in order.
 1. **Identify every confidential raw input file** your code reads. List them in your `README`.
 
 2. **Create a dedicated simulation script which generates a simulated version of each file.** The simulated data must satisfy the following:
-   - **Same dimensionality**: same number of variables (columns) and same number of observations (rows).
+   - **Dimensionality**: same number of variables (columns) and a suitable number of observations (rows) - you are not required to provide the full number of rows, as long as you can guarantee that your programs will run correctly.
    - **Same variable names and types**: column names, data types (integer, float, string, date), and units must match the real data exactly, because your code will reference them by name.
    - **Same file format**: if your code reads a `.dta` file, supply a `.dta` file; if it reads a `.csv`, supply a `.csv`.
    - **Respect sign and support restrictions**: if a variable is always positive in the real data (e.g. income, price, age), simulate it as positive. If a variable is a dummy, simulate it as 0/1. If a categorical variable takes values $\{1,2,3\}$, simulate it within that set. You do not need to match the distribution, but violating the support can cause downstream failures.

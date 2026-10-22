@@ -1,0 +1,43 @@
+---
+title: "Non-Disclosure Agreement"
+format:
+  typst:
+    papersize: a4
+    fontsize: 11pt
+    margin:
+      top: 30mm
+      bottom: 30mm
+      left: 28mm
+      right: 28mm
+---
+
+**Date:**______________________  
+**Disclosing party:** ______________________  
+**Recipient:** Florian Oswald, Data Editor, *Journal of Political Economy*  
+**Re paper:**  ______________________
+
+The Disclosing Party has agreed to share with the Recipient the identity of one or more data providers used in the above-referenced paper (the **"Disclosed Information"**), solely to allow the Recipient to verify that such data sources exist and are plausible, in connection with the Recipient's role as data editor. The Disclosing Party has requested, as a condition of this disclosure, that the Recipient treat this information as confidential.
+
+In consideration of the Disclosing Party sharing the Disclosed Information, the Recipient hereby undertakes as follows:
+
+**1. Non-disclosure.** The Recipient shall keep the Disclosed Information strictly confidential and shall not share, publish, communicate, or otherwise disclose it to any third party, except as required by applicable law or a binding court order.
+
+**2. Limited use.** The Recipient shall use the Disclosed Information solely for the purpose of verifying the plausibility of the data source in the context of the above-referenced paper, and for no other purpose.
+
+**3. Duration.** This undertaking shall remain in force for a period of five (5) years from the date of signature, or until the Disclosed Information becomes publicly available through no act or omission of the Recipient, whichever occurs first.
+
+**4. No editorial obligation.** Nothing in this undertaking requires the Disclosing Party to disclose any information beyond the identity of the data provider(s), nor does it create any obligation on the Recipient to publish, accept, or take any particular editorial action regarding the above-referenced paper.
+
+**5. Personal capacity.** The Recipient signs this undertaking solely in their personal capacity. Nothing herein shall be construed to bind the *Journal of Political Economy*, the University of Chicago Press, the University of Turin, or any other institution with which the Recipient is or may be affiliated.
+
+
+| | |
+|:---|:---|
+| **Recipient** *(undertaking party)* | **Disclosing party** *(acknowledgment only)* |
+| &nbsp; | &nbsp; |
+| &nbsp; | &nbsp; |
+| Florian Oswald | Name: |
+| Data Editor, *Journal of Political Economy* | &nbsp; |
+| Date: | Date: |
+
+*The Disclosing Party signs only to acknowledge receipt of this undertaking, not to assume any obligation.*
